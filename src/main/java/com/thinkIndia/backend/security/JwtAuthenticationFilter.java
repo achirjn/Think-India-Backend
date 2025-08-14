@@ -47,7 +47,7 @@ protected void doFilterInternal(HttpServletRequest request, HttpServletResponse 
         // 4. If authentication is successful, build and send the JSON response.
         if (authResult.isAuthenticated()) {
             // Generate the JWT, including the user's roles.
-            String token = jwtUtil.generateToken(authResult.getName(), authResult.getAuthorities());
+            String token = jwtUtil.generateToken(authResult.getName(), authResult.getAuthorities(), 15);
 
             // Check if the user has the "ROLE_ADMIN" authority.
             boolean isAdmin = authResult.getAuthorities().stream()

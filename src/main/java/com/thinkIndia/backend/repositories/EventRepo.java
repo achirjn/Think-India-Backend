@@ -8,4 +8,5 @@ import com.thinkIndia.backend.entities.Events;
 @Repository
 public interface EventRepo extends JpaRepository<Events, Integer>{
     
+    public void deleteByName(String eventName);
 }

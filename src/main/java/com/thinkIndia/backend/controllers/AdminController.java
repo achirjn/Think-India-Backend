@@ -55,6 +55,11 @@ public class AdminController {
         if(blog==null) return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         return new ResponseEntity<>(HttpStatus.OK);
     }
+    @DeleteMapping("/deleteBlog/{heading}")
+    public ResponseEntity<?> deleteBlog(@PathVariable(value="heading") String heading){
+        blogService.deleteByHeading(heading);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
     
     @CrossOrigin(origins = {"http://localhost:5173"})
     @PostMapping("/addEvent")
@@ -64,6 +69,11 @@ public class AdminController {
         Events event = new Events(name, savedImageId);
         event = eventService.createEvent(event);
         if(event == null) return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+    @DeleteMapping("/deleteEvent/{name}")
+    public ResponseEntity<?> deleteEvent(@PathVariable(value="name") String name){
+        eventService.deleteByName(name);
         return new ResponseEntity<>(HttpStatus.OK);
     }
     

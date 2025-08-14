@@ -10,6 +10,8 @@ import com.thinkIndia.backend.entities.Events;
 import com.thinkIndia.backend.repositories.EventRepo;
 import com.thinkIndia.backend.services.EventService;
 
+import jakarta.transaction.Transactional;
+
 @Service
 public class EventServiceImpl implements EventService{
 
@@ -26,4 +28,9 @@ public class EventServiceImpl implements EventService{
         return eventRepository.save(event);
     }
 
+    @Override
+    @Transactional
+    public void deleteByName(String eventName){
+        eventRepository.deleteByName(eventName);
+    }
 }

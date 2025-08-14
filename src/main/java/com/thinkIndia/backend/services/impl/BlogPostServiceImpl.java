@@ -11,6 +11,8 @@ import com.thinkIndia.backend.entities.BlogPost;
 import com.thinkIndia.backend.repositories.BlogPostRepo;
 import com.thinkIndia.backend.services.BlogPostService;
 
+import jakarta.transaction.Transactional;
+
 @Service
 public class BlogPostServiceImpl implements BlogPostService{
 
@@ -30,5 +32,11 @@ public class BlogPostServiceImpl implements BlogPostService{
     @Override
     public Optional<BlogPost> getBlogById(int id) {
         return blogRepository.findById(id);
+    }
+
+    @Override
+    @Transactional
+    public void deleteByHeading(String heading) {
+        blogRepository.deleteByHeading(heading);
     }
 }

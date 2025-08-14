@@ -21,31 +21,20 @@ public class JwtUtil {
     private static final String SECRET_KEY = "sdkpoLjgsJKdOF23SDs0400sdl=GGstwwbxB,/sggw";
     private static final Key key = Keys.hmacShaKeyFor(SECRET_KEY.getBytes(StandardCharsets.UTF_8));
 
-    /**
-     * ✅ CHANGED: This method now accepts user authorities to include them in the token.
-     * The expiration time is now hardcoded here for consistency (e.g., 24 hours).
-     */
-    public String generateToken(String email, Collection<? extends GrantedAuthority> authorities) {
-        // Convert the authorities Collection to a simple List of strings (e.g., ["ROLE_ADMIN"])
+    public String generateToken(String email, Collection<? extends GrantedAuthority> authorities, long expiryMinutes) {
         List<String> roles = authorities.stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toList());
 
-        long now = System.currentTimeMillis();
-
         return Jwts.builder()
                 .subject(email)
-                .claim("roles", roles) // ✅ ADDED: Roles are added as a custom claim.
-                .issuedAt(new Date(now))
-                .expiration(new Date(now + 1000 * 60 * 60 * 24)) // 24-hour expiration
+                .claim("roles", roles) 
+                .issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis() + (expiryMinutes * 60 * 1000)))
                 .signWith(key)
                 .compact();
     }
 
-    /**
-     * ✅ CHANGED: This method now has improved error handling to log the specific
-     * reason why a token is invalid.
-     */
     public String validateAndExtractUsername(String token) {
         try {
             return Jwts.parser()

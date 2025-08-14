@@ -8,4 +8,5 @@ import com.thinkIndia.backend.entities.BlogPost;
 @Repository
 public interface BlogPostRepo extends JpaRepository<BlogPost, Integer>{
 
+    public void deleteByHeading(String heading);
 }
