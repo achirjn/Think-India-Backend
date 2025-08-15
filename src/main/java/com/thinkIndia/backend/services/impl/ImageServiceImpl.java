@@ -25,4 +25,9 @@ public class ImageServiceImpl implements ImageService{
         return imageRepository.findById(id);
     }
 
+    @Override
+    public void deleteById(int id) {
+        imageRepository.deleteById(id);
+    }
+
 }

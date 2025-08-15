@@ -6,6 +6,6 @@ import com.thinkIndia.backend.entities.User;
 
 public interface UserService extends UserDetailsService{
 
-    public User savUser(User user);
+    public User saveUser(User user);
 
 }

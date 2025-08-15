@@ -23,13 +23,15 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @EnableWebSecurity
 public class SecurityConfig {
 
-     private UserDetailsService userDetailsService;
-     private JwtUtil jwtUtil;
+    private OAuthAuthenticationSuccessHandler successHandler;
+    private UserDetailsService userDetailsService;
+    private JwtUtil jwtUtil;
 
-     public SecurityConfig(UserDetailsService userDetailsService, JwtUtil jwtUtil){
-        this.jwtUtil=jwtUtil;
-        this.userDetailsService=userDetailsService;
-     }
+    public SecurityConfig(OAuthAuthenticationSuccessHandler successHandler, UserDetailsService userDetailsService, JwtUtil jwtUtil){
+        this.successHandler = successHandler;
+       this.jwtUtil=jwtUtil;
+       this.userDetailsService=userDetailsService;
+    }
 
     @Bean
     public PasswordEncoder passwordEncoder(){
@@ -58,12 +60,17 @@ public class SecurityConfig {
             .cors(withDefaults())
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                .requestMatchers("/login/oauth2/code/google").permitAll()
                 .anyRequest().permitAll()
                 )
                 .csrf(csrf -> csrf.disable())
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterAfter(jwtValidationFilter, JwtAuthenticationFilter.class);
-            return http.build();
+        http.oauth2Login(oauth -> {
+            oauth.loginPage("http://localhost:5173/login");
+            oauth.successHandler(successHandler);
+        });
+        return http.build();
     }
     @Bean
     CorsConfigurationSource corsConfigurationSource() {

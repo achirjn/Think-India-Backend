@@ -8,7 +8,6 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,10 +21,12 @@ import com.thinkIndia.backend.entities.BlogPost;
 import com.thinkIndia.backend.entities.Events;
 import com.thinkIndia.backend.entities.Images;
 import com.thinkIndia.backend.entities.Recommendations;
+import com.thinkIndia.backend.entities.TeamMember;
 import com.thinkIndia.backend.services.BlogPostService;
 import com.thinkIndia.backend.services.EventService;
 import com.thinkIndia.backend.services.ImageService;
 import com.thinkIndia.backend.services.RecommendService;
+import com.thinkIndia.backend.services.TeamMemberService;
 
 
 
@@ -41,8 +42,10 @@ public class HomeController {
     private ImageService imageService;
     @Autowired
     private EventService eventService;
+    @Autowired
+    private TeamMemberService teamMemberService;
 
-    @CrossOrigin(origins = {"http://localhost:5173"})
+    // @CrossOrigin(origins = {"http://localhost:5173"})
     @PostMapping("/recommend")
     public ResponseEntity<?> saveRecommendation(@RequestParam("Name") String name, @RequestParam("Email") String email, @RequestParam("Message") String message) {
         Recommendations recommendation = new Recommendations(name, email, message);
@@ -51,7 +54,7 @@ public class HomeController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @CrossOrigin(origins = {"http://localhost:5173"})
+    // @CrossOrigin(origins = {"http://localhost:5173"})
     @GetMapping("/blogPageGetAllBlogs")
     public ResponseEntity<?> allBlogs() {
         List<BlogPost> blogsList = blogPostService.getAllBlogs();
@@ -62,7 +65,7 @@ public class HomeController {
         }
         return new ResponseEntity<>(blogDtoList, HttpStatus.OK);
     }
-    @CrossOrigin(origins = {"http://localhost:5173"})
+    // @CrossOrigin(origins = {"http://localhost:5173"})
     @GetMapping("/blog/{id}")
     public ResponseEntity<?> getBlog(@PathVariable(value="id") int blogId) {
         Optional<BlogPost> blogPostOptional = blogPostService.getBlogById(blogId);
@@ -73,7 +76,7 @@ public class HomeController {
         return new ResponseEntity<>(blogDto, HttpStatus.OK);
     }
     
-    @CrossOrigin(origins = {"http://localhost:5173"})
+    // @CrossOrigin(origins = {"http://localhost:5173"})
     @GetMapping("/image/{id}")
     public ResponseEntity<?> getImage(@PathVariable(value="id") int imageId) {
         Optional<Images> imageOptional = imageService.getImageById(imageId);
@@ -84,7 +87,7 @@ public class HomeController {
         return new ResponseEntity<>(imageDto, HttpStatus.OK);
     }
     
-    @CrossOrigin(origins = {"http://localhost:5173"})
+    // @CrossOrigin(origins = {"http://localhost:5173"})
     @GetMapping("/events")
     public ResponseEntity<?> getEvents() {
         List<Events> eventsList = eventService.findAll();
@@ -96,6 +99,16 @@ public class HomeController {
         return new ResponseEntity<>(eventDtoList, HttpStatus.OK);
     }
     
+    @GetMapping("/getCoreMembers")
+    public ResponseEntity<?> getCoreMembers() {
+        List<TeamMember> memberList = teamMemberService.getByCommittee("core");
+        return new ResponseEntity<>(memberList, HttpStatus.OK);
+    }
+    @GetMapping("/getNonCoreMembers")
+    public ResponseEntity<?> getNonCoreMembers() {
+        List<TeamMember> memberList = teamMemberService.getByCommittee("non_core");
+        return new ResponseEntity<>(memberList, HttpStatus.OK);
+    }
     
     
 }

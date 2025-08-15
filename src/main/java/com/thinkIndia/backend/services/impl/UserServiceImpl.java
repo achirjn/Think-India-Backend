@@ -1,5 +1,7 @@
 package com.thinkIndia.backend.services.impl;
 
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -16,15 +18,15 @@ public class UserServiceImpl implements UserService{
 
     @Override
     public User loadUserByUsername(String email) throws UsernameNotFoundException {
-        User user = userRepository.findByEmail(email);
-    if (user == null) {
-        throw new UsernameNotFoundException("User not found with email: " + email);
-    }
-    return user;
+        Optional<User> userOptional = userRepository.findByEmail(email);
+        if (userOptional.isEmpty()) {
+            throw new UsernameNotFoundException("User not found with email: " + email);
+        }
+        return userOptional.get();
     }
 
     @Override
-    public User savUser(User user) {
+    public User saveUser(User user) {
         return userRepository.save(user);
     }
 

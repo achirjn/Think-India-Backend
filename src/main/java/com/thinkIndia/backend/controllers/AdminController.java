@@ -3,12 +3,12 @@ package com.thinkIndia.backend.controllers;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -24,10 +24,13 @@ import com.thinkIndia.backend.entities.BlogPost;
 import com.thinkIndia.backend.entities.Events;
 import com.thinkIndia.backend.entities.Images;
 import com.thinkIndia.backend.entities.Recommendations;
+import com.thinkIndia.backend.entities.TeamMember;
 import com.thinkIndia.backend.services.BlogPostService;
 import com.thinkIndia.backend.services.EventService;
 import com.thinkIndia.backend.services.ImageService;
 import com.thinkIndia.backend.services.RecommendService;
+import com.thinkIndia.backend.services.TeamMemberService;
+
 
 
 
@@ -44,8 +47,10 @@ public class AdminController {
     private EventService eventService;
     @Autowired
     private RecommendService recommendService;
+    @Autowired
+    private TeamMemberService teamMemberService;
 
-    @CrossOrigin(origins = {"http://localhost:5173"})
+    // @CrossOrigin(origins = {"http://localhost:5173"})
     @PostMapping("/createBlog")
     public ResponseEntity<?> createBlog(@RequestParam("Title") String title , @RequestParam("Excerpt") String excerpt, @RequestParam("Cover_image") MultipartFile imageFile) throws IOException {
         int savedImageId = uploadImage(imageFile);
@@ -61,7 +66,7 @@ public class AdminController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
     
-    @CrossOrigin(origins = {"http://localhost:5173"})
+    // @CrossOrigin(origins = {"http://localhost:5173"})
     @PostMapping("/addEvent")
     public ResponseEntity<?> addEvent(@RequestParam("Name") String name, @RequestParam("Event_image") MultipartFile imageFile) throws IOException{
         int savedImageId = uploadImage(imageFile);
@@ -77,7 +82,7 @@ public class AdminController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
     
-    @CrossOrigin(origins = {"http://localhost:5173"})
+    // @CrossOrigin(origins = {"http://localhost:5173"})
     @GetMapping("/showUnresolvedRecommendations")
     public ResponseEntity<?> showUnresolvedRecommendations() {
         List<Recommendations> recommendList = recommendService.showUnresolvedRecommendations();
@@ -88,7 +93,7 @@ public class AdminController {
         }
         return new ResponseEntity<>(recommendDtoList, HttpStatus.OK);
     }
-    @CrossOrigin(origins = {"http://localhost:5173"})
+    // @CrossOrigin(origins = {"http://localhost:5173"})
     @GetMapping("/showResolvedRecommendations")
     public ResponseEntity<?> showResolvedRecommendations() {
         List<Recommendations> recommendList = recommendService.showResolvedRecommendations();
@@ -99,13 +104,13 @@ public class AdminController {
         }
         return new ResponseEntity<>(recommendDtoList, HttpStatus.OK);
     }
-    @CrossOrigin(origins = {"http://localhost:5173"})
+    // @CrossOrigin(origins = {"http://localhost:5173"})
     @DeleteMapping("/removeRecommendation/{id}")
     public ResponseEntity<?> removeRecommendation(@PathVariable(value="id") int recommendationId){
         recommendService.deleteById(recommendationId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
-    @CrossOrigin(origins = {"http://localhost:5173"})
+    // @CrossOrigin(origins = {"http://localhost:5173"})
     @PutMapping("/resolveRecommendation/{id}")
     public ResponseEntity<?> resolveRecommendation(@PathVariable(value="id") int recommendationId) {
         Recommendations recommendation = recommendService.getById(recommendationId).get();
@@ -115,6 +120,25 @@ public class AdminController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
     
+    @PostMapping("/addTeamMember")
+    public ResponseEntity<?> addTeamMember(@RequestParam("Name") String name, @RequestParam("Member_image") MultipartFile imageFile, @RequestParam("Committee") String committee, @RequestParam("Position") String position) throws IOException {
+        int savedImageId = uploadImage(imageFile);
+        if(savedImageId==-1) return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        TeamMember member = new TeamMember(name, savedImageId, committee, position);
+        member = teamMemberService.saveMember(member);
+        if(member == null) return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+    @DeleteMapping("/deleteTeamMember/{id}")
+    public ResponseEntity<?> deleteMember(@PathVariable(value="id") int id){
+        Optional<TeamMember> memberOptional = teamMemberService.getById(id);
+        if(memberOptional.isEmpty()) return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        TeamMember member = memberOptional.get();
+        int imageId = member.getImageId();
+        deleteImage(imageId);
+        teamMemberService.deleteMember(id);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
     
     public int uploadImage(MultipartFile imageFile) throws IOException{
         String imageName = StringUtils.cleanPath(imageFile.getOriginalFilename());
@@ -122,6 +146,9 @@ public class AdminController {
         Images savedImage = imageService.saveImage(image);
         if(savedImage==null) return -1;
         return savedImage.getId();
+    }
+    public void deleteImage(int id){
+        imageService.deleteById(id);
     }
 
 }
