@@ -7,8 +7,9 @@ import com.thinkIndia.backend.entities.TeamMember;
 
 public interface TeamMemberService {
 
-    public List<TeamMember> getByCommittee(String committee);
+    public List<TeamMember> getMemberByPosition(String position);
     public void deleteMember(int id);
     public TeamMember saveMember(TeamMember member);
     public Optional<TeamMember> getById(int id);
+    public List<TeamMember> getMembers();
 }

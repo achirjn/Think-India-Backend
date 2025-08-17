@@ -53,6 +53,9 @@ public class AdminController {
     // @CrossOrigin(origins = {"http://localhost:5173"})
     @PostMapping("/createBlog")
     public ResponseEntity<?> createBlog(@RequestParam("Title") String title , @RequestParam("Excerpt") String excerpt, @RequestParam("Cover_image") MultipartFile imageFile) throws IOException {
+        title = title.stripLeading();
+        title = title.stripTrailing();
+
         int savedImageId = uploadImage(imageFile);
         if(savedImageId==-1) return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         BlogPost blog = new BlogPost(savedImageId, title, excerpt);
@@ -69,6 +72,9 @@ public class AdminController {
     // @CrossOrigin(origins = {"http://localhost:5173"})
     @PostMapping("/addEvent")
     public ResponseEntity<?> addEvent(@RequestParam("Name") String name, @RequestParam("Event_image") MultipartFile imageFile) throws IOException{
+        name = name.stripLeading();
+        name = name.stripTrailing();
+
         int savedImageId = uploadImage(imageFile);
         if(savedImageId==-1) return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         Events event = new Events(name, savedImageId);
@@ -122,12 +128,19 @@ public class AdminController {
     
     @PostMapping("/addTeamMember")
     public ResponseEntity<?> addTeamMember(@RequestParam("Name") String name, @RequestParam("Member_image") MultipartFile imageFile, @RequestParam("Committee") String committee, @RequestParam("Position") String position) throws IOException {
+        name = name.stripLeading();
+        name = name.stripTrailing();
+        committee = committee.stripLeading();
+        committee = committee.stripTrailing();
+        position = position.stripLeading();
+        position = position.stripTrailing();
+
         int savedImageId = uploadImage(imageFile);
         if(savedImageId==-1) return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         TeamMember member = new TeamMember(name, savedImageId, committee, position);
         member = teamMemberService.saveMember(member);
         if(member == null) return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(member, HttpStatus.OK);
     }
     @DeleteMapping("/deleteTeamMember/{id}")
     public ResponseEntity<?> deleteMember(@PathVariable(value="id") int id){

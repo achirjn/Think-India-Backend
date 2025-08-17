@@ -99,16 +99,19 @@ public class HomeController {
         return new ResponseEntity<>(eventDtoList, HttpStatus.OK);
     }
     
-    @GetMapping("/getCoreMembers")
-    public ResponseEntity<?> getCoreMembers() {
-        List<TeamMember> memberList = teamMemberService.getByCommittee("core");
+    @GetMapping("/getMemberByPosition/{position}")
+    public ResponseEntity<?> getMemberByPosition(@PathVariable String position) {
+        position = position.replace('_',' ');
+        List<TeamMember> memberList = teamMemberService.getMemberByPosition(position);
+        if(memberList.isEmpty()) return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         return new ResponseEntity<>(memberList, HttpStatus.OK);
     }
-    @GetMapping("/getNonCoreMembers")
-    public ResponseEntity<?> getNonCoreMembers() {
-        List<TeamMember> memberList = teamMemberService.getByCommittee("non_core");
-        return new ResponseEntity<>(memberList, HttpStatus.OK);
+    @GetMapping("/getTeamMember")
+    public ResponseEntity<?> getTeamMember() {
+        List<TeamMember> memberList = teamMemberService.getMembers();
+        return new ResponseEntity<>(memberList,HttpStatus.OK);
     }
+    
     
     
 }
