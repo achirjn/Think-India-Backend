@@ -11,5 +11,5 @@ import com.thinkIndia.backend.entities.User;
 public interface UserRepo extends JpaRepository<User, Integer>{
 
     public Optional<User> findByEmail(String email);
-
+    
 }

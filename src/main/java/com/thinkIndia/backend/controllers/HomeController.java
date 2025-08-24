@@ -15,15 +15,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.thinkIndia.backend.dto.BlogDto;
-import com.thinkIndia.backend.dto.EventDto;
+import com.thinkIndia.backend.dto.GlimpsesDto;
 import com.thinkIndia.backend.dto.ImageDto;
 import com.thinkIndia.backend.entities.BlogPost;
-import com.thinkIndia.backend.entities.Events;
+import com.thinkIndia.backend.entities.Glimpses;
 import com.thinkIndia.backend.entities.Images;
 import com.thinkIndia.backend.entities.Recommendations;
 import com.thinkIndia.backend.entities.TeamMember;
 import com.thinkIndia.backend.services.BlogPostService;
-import com.thinkIndia.backend.services.EventService;
+import com.thinkIndia.backend.services.GlimpsesService;
 import com.thinkIndia.backend.services.ImageService;
 import com.thinkIndia.backend.services.RecommendService;
 import com.thinkIndia.backend.services.TeamMemberService;
@@ -41,7 +41,7 @@ public class HomeController {
     @Autowired
     private ImageService imageService;
     @Autowired
-    private EventService eventService;
+    private GlimpsesService glimpsesService;
     @Autowired
     private TeamMemberService teamMemberService;
 
@@ -88,15 +88,15 @@ public class HomeController {
     }
     
     // @CrossOrigin(origins = {"http://localhost:5173"})
-    @GetMapping("/events")
-    public ResponseEntity<?> getEvents() {
-        List<Events> eventsList = eventService.findAll();
-        List<EventDto> eventDtoList = new ArrayList<>();
-        for(Events ev: eventsList){
-            EventDto tempDto = new EventDto(ev.getImageId(), ev.getName());
-            eventDtoList.add(tempDto);
+    @GetMapping("/glimpses")
+    public ResponseEntity<?> getglimpses() {
+        List<Glimpses> glimpsesList = glimpsesService.findAll();
+        List<GlimpsesDto> glimpsesDtoList = new ArrayList<>();
+        for(Glimpses ev: glimpsesList){
+            GlimpsesDto tempDto = new GlimpsesDto(ev.getImageId(), ev.getName());
+            glimpsesDtoList.add(tempDto);
         }
-        return new ResponseEntity<>(eventDtoList, HttpStatus.OK);
+        return new ResponseEntity<>(glimpsesDtoList, HttpStatus.OK);
     }
     
     @GetMapping("/getMemberByPosition/{position}")
@@ -111,7 +111,5 @@ public class HomeController {
         List<TeamMember> memberList = teamMemberService.getMembers();
         return new ResponseEntity<>(memberList,HttpStatus.OK);
     }
-    
-    
     
 }

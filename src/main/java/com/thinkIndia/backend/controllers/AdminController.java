@@ -1,6 +1,7 @@
 package com.thinkIndia.backend.controllers;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -22,16 +23,16 @@ import org.springframework.web.multipart.MultipartFile;
 import com.thinkIndia.backend.dto.RecommendationDto;
 import com.thinkIndia.backend.entities.BlogPost;
 import com.thinkIndia.backend.entities.Events;
+import com.thinkIndia.backend.entities.Glimpses;
 import com.thinkIndia.backend.entities.Images;
 import com.thinkIndia.backend.entities.Recommendations;
 import com.thinkIndia.backend.entities.TeamMember;
 import com.thinkIndia.backend.services.BlogPostService;
-import com.thinkIndia.backend.services.EventService;
+import com.thinkIndia.backend.services.EventsService;
+import com.thinkIndia.backend.services.GlimpsesService;
 import com.thinkIndia.backend.services.ImageService;
 import com.thinkIndia.backend.services.RecommendService;
 import com.thinkIndia.backend.services.TeamMemberService;
-
-
 
 
 
@@ -44,11 +45,13 @@ public class AdminController {
     @Autowired
     private ImageService imageService;
     @Autowired
-    private EventService eventService;
+    private GlimpsesService glimpsesService;
     @Autowired
     private RecommendService recommendService;
     @Autowired
     private TeamMemberService teamMemberService;
+    @Autowired
+    private EventsService eventsService;
 
     // @CrossOrigin(origins = {"http://localhost:5173"})
     @PostMapping("/createBlog")
@@ -70,21 +73,21 @@ public class AdminController {
     }
     
     // @CrossOrigin(origins = {"http://localhost:5173"})
-    @PostMapping("/addEvent")
-    public ResponseEntity<?> addEvent(@RequestParam("Name") String name, @RequestParam("Event_image") MultipartFile imageFile) throws IOException{
+    @PostMapping("/addGlimpse")
+    public ResponseEntity<?> addGlimpse(@RequestParam("Name") String name, @RequestParam("Glimpse_image") MultipartFile imageFile) throws IOException{
         name = name.stripLeading();
         name = name.stripTrailing();
 
         int savedImageId = uploadImage(imageFile);
         if(savedImageId==-1) return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        Events event = new Events(name, savedImageId);
-        event = eventService.createEvent(event);
+        Glimpses event = new Glimpses(name, savedImageId);
+        event = glimpsesService.createEvent(event);
         if(event == null) return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         return new ResponseEntity<>(HttpStatus.OK);
     }
-    @DeleteMapping("/deleteEvent/{name}")
-    public ResponseEntity<?> deleteEvent(@PathVariable(value="name") String name){
-        eventService.deleteByName(name);
+    @DeleteMapping("/deleteGlimpse/{name}")
+    public ResponseEntity<?> deleteGlimpse(@PathVariable(value="name") String name){
+        glimpsesService.deleteByName(name);
         return new ResponseEntity<>(HttpStatus.OK);
     }
     
@@ -150,6 +153,63 @@ public class AdminController {
         int imageId = member.getImageId();
         deleteImage(imageId);
         teamMemberService.deleteMember(id);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+    @PostMapping("/addEvent")
+    public ResponseEntity<?> addevents(@RequestParam("Name") String name,@RequestParam(value="Images", required=false) List<MultipartFile> imageList, @RequestParam(value="Details") String details, @RequestParam(value="Message",required=false) String message, @RequestParam(value="DateTime") LocalDateTime dateTime, @RequestParam(value="IsActive") int isActive, @RequestParam(value="ShowEvent") int showEvent) {
+        Events events = new Events();
+        if(imageList != null && !imageList.isEmpty()){
+            List<Integer> imageIdList = new ArrayList<>();
+            for(MultipartFile image: imageList){
+                try {
+                    int savedImageId = uploadImage(image);
+                    if(savedImageId==-1) return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+                    imageIdList.add(savedImageId);
+                } catch (IOException ex) {
+                }
+            }
+            events = new Events(dateTime, details, imageIdList,message, name, isActive, showEvent);
+        }
+        else{
+            events = new Events(name, details, message, dateTime, isActive, showEvent);
+        }
+        eventsService.saveEvent(events);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+    @GetMapping("/activateEvent/{id}")
+    public ResponseEntity<?> activateEvent(@PathVariable("id") int id){
+        Optional<Events> eventOptional = eventsService.findById(id);
+        if(eventOptional.isEmpty()) return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        Events event = eventOptional.get();
+        event.setIsActive(1);
+        eventsService.saveEvent(event);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+    @GetMapping("/deActivateEvent/{id}")
+    public ResponseEntity<?> deActivateEvent(@PathVariable("id") int id){
+        Optional<Events> eventOptional = eventsService.findById(id);
+        if(eventOptional.isEmpty()) return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        Events event = eventOptional.get();
+        event.setIsActive(0);
+        eventsService.saveEvent(event);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+    @GetMapping("/showEvent/{id}")
+    public ResponseEntity<?> showEvent(@PathVariable("id") int id){
+        Optional<Events> eventOptional = eventsService.findById(id);
+        if(eventOptional.isEmpty()) return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        Events event = eventOptional.get();
+        event.setShowEvent(1);
+        eventsService.saveEvent(event);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+    @GetMapping("/hideEvent/{id}")
+    public ResponseEntity<?> hideEvent(@PathVariable("id") int id){
+        Optional<Events> eventOptional = eventsService.findById(id);
+        if(eventOptional.isEmpty()) return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        Events event = eventOptional.get();
+        event.setShowEvent(0);
+        eventsService.saveEvent(event);
         return new ResponseEntity<>(HttpStatus.OK);
     }
     

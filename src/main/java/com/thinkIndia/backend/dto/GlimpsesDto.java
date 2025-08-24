@@ -7,7 +7,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @AllArgsConstructor
-public class EventDto {
+public class GlimpsesDto {
     private int imageId;
     private String eventName;
 }
