@@ -20,11 +20,13 @@ import com.thinkIndia.backend.dto.ImageDto;
 import com.thinkIndia.backend.entities.BlogPost;
 import com.thinkIndia.backend.entities.Glimpses;
 import com.thinkIndia.backend.entities.Images;
+import com.thinkIndia.backend.entities.InternPlacements;
 import com.thinkIndia.backend.entities.Recommendations;
 import com.thinkIndia.backend.entities.TeamMember;
 import com.thinkIndia.backend.services.BlogPostService;
 import com.thinkIndia.backend.services.GlimpsesService;
 import com.thinkIndia.backend.services.ImageService;
+import com.thinkIndia.backend.services.InternPlacementsService;
 import com.thinkIndia.backend.services.RecommendService;
 import com.thinkIndia.backend.services.TeamMemberService;
 
@@ -44,6 +46,8 @@ public class HomeController {
     private GlimpsesService glimpsesService;
     @Autowired
     private TeamMemberService teamMemberService;
+    @Autowired
+    private InternPlacementsService internPlacementsService;
 
     // @CrossOrigin(origins = {"http://localhost:5173"})
     @PostMapping("/recommend")
@@ -110,6 +114,11 @@ public class HomeController {
     public ResponseEntity<?> getTeamMember() {
         List<TeamMember> memberList = teamMemberService.getMembers();
         return new ResponseEntity<>(memberList,HttpStatus.OK);
+    }
+    @GetMapping("/internPlacements")
+    public ResponseEntity<?> getInternPlacements() {
+        List<InternPlacements> internPlacementsList = internPlacementsService.getInternPlacements();
+        return new ResponseEntity<>(internPlacementsList, HttpStatus.OK);
     }
     
 }

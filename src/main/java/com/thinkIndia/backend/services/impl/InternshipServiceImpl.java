@@ -1,5 +1,6 @@
 package com.thinkIndia.backend.services.impl;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,10 @@ public class InternshipServiceImpl implements InternshipService{
     @Override
     public Optional<Internship> findById(int id) {
         return internshipRepository.findById(id);
+    }
+    @Override
+    public List<Internship> getUpcommingInternships() {
+        return internshipRepository.findUpcommingInternships();
     }
 
 }

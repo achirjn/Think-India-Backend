@@ -25,14 +25,17 @@ import com.thinkIndia.backend.entities.BlogPost;
 import com.thinkIndia.backend.entities.Events;
 import com.thinkIndia.backend.entities.Glimpses;
 import com.thinkIndia.backend.entities.Images;
+import com.thinkIndia.backend.entities.InternPlacements;
 import com.thinkIndia.backend.entities.Recommendations;
 import com.thinkIndia.backend.entities.TeamMember;
 import com.thinkIndia.backend.services.BlogPostService;
 import com.thinkIndia.backend.services.EventsService;
 import com.thinkIndia.backend.services.GlimpsesService;
 import com.thinkIndia.backend.services.ImageService;
+import com.thinkIndia.backend.services.InternPlacementsService;
 import com.thinkIndia.backend.services.RecommendService;
 import com.thinkIndia.backend.services.TeamMemberService;
+
 
 
 
@@ -52,6 +55,8 @@ public class AdminController {
     private TeamMemberService teamMemberService;
     @Autowired
     private EventsService eventsService;
+    @Autowired
+    private InternPlacementsService internPlacementsService;
 
     // @CrossOrigin(origins = {"http://localhost:5173"})
     @PostMapping("/createBlog")
@@ -212,6 +217,26 @@ public class AdminController {
         eventsService.saveEvent(event);
         return new ResponseEntity<>(HttpStatus.OK);
     }
+    @PostMapping("/addInternPlacements")
+    public ResponseEntity<?> addInternPlacements(@RequestParam(value="Name") String studentName, @RequestParam(value="Institute") String instituteName, @RequestParam(value="Image") MultipartFile imageFile) {
+        try {
+            int savedImageId = uploadImage(imageFile);
+            InternPlacements internPlacement;
+            if(studentName!=null) internPlacement = new InternPlacements(studentName, instituteName, savedImageId);
+            else internPlacement = new InternPlacements(savedImageId);
+            internPlacementsService.saveInternPlacedData(internPlacement);
+        } catch (IOException ex) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+    @DeleteMapping("/removeInternPlacedData/{id}")
+    public ResponseEntity<?> deleteInternPlacements(@PathVariable("id") int id){
+        internPlacementsService.deleteById(id);
+        return new ResponseEntity<>(HttpStatus.OK);
+
+    }
+    
     
     public int uploadImage(MultipartFile imageFile) throws IOException{
         String imageName = StringUtils.cleanPath(imageFile.getOriginalFilename());

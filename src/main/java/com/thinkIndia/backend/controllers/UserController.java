@@ -20,6 +20,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.thinkIndia.backend.dto.UserEventDto;
+import com.thinkIndia.backend.dto.UserInternshipsDto;
 import com.thinkIndia.backend.entities.EventRegistration;
 import com.thinkIndia.backend.entities.Events;
 import com.thinkIndia.backend.entities.Images;
@@ -27,6 +29,7 @@ import com.thinkIndia.backend.entities.InternApplication;
 import com.thinkIndia.backend.entities.Internship;
 import com.thinkIndia.backend.entities.ResumeCV;
 import com.thinkIndia.backend.entities.User;
+import com.thinkIndia.backend.services.EventRegistrationService;
 import com.thinkIndia.backend.services.EventsService;
 import com.thinkIndia.backend.services.ImageService;
 import com.thinkIndia.backend.services.InternApplicationService;
@@ -36,10 +39,6 @@ import com.thinkIndia.backend.services.UserService;
 
 import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletResponse;
-
-import com.thinkIndia.backend.dto.UserEventDto;
-import com.thinkIndia.backend.dto.UserInternshipsDto;
-import com.thinkIndia.backend.services.EventRegistrationService;
 
 
 
@@ -125,6 +124,12 @@ public class UserController {
         }
         return new ResponseEntity<>(HttpStatus.OK);
     }
+    @GetMapping("/getUpcommingInternships")
+    public ResponseEntity<?> getUpcommingInternships() {
+        List<Internship> upcommingInternships = internshipService.getUpcommingInternships();
+        return new ResponseEntity<>(upcommingInternships, HttpStatus.OK);
+    }
+    
     
     @PostMapping("/applyInternship/{userEmail}/{internshipId}")
     public ResponseEntity<?> applyInternship(@PathVariable("userEmail") String userEmail, @PathVariable("internshipId") int internshipId, @RequestParam(value="Resume", required=false) MultipartFile resumeFile) {
