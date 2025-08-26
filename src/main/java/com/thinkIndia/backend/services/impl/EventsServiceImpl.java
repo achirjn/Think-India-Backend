@@ -31,5 +31,9 @@ public class EventsServiceImpl implements EventsService{
     public List<Events> getUpcommingEvents() {
         return eventsRepository.getEvents(1);
     }
+    @Override
+    public List<Events> getHiddenEvents() {
+        return eventsRepository.getHiddenEvents();
+    }
 
 }

@@ -16,5 +16,7 @@ public interface EventsRepo extends JpaRepository<Events, Integer>{
 
     @Query(value="select * from events where is_active = ?1 and show_event = 1;", nativeQuery=true)
     public List<Events> getEvents(int isActive);
-
+    
+    @Query(value="select * from events where show_event = 0;", nativeQuery=true)
+    public List<Events> getHiddenEvents();
 }

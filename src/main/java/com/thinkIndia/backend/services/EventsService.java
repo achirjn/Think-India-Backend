@@ -11,4 +11,5 @@ public interface EventsService {
     public Optional<Events> findById(int id);
     public List<Events> getPastEvents();
     public List<Events> getUpcommingEvents();
+    public List<Events> getHiddenEvents();
 }

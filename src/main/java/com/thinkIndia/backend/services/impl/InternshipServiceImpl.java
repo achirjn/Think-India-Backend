@@ -23,5 +23,13 @@ public class InternshipServiceImpl implements InternshipService{
     public List<Internship> getUpcommingInternships() {
         return internshipRepository.findUpcommingInternships();
     }
+    @Override
+    public Internship savInternship(Internship internship) {
+        return internshipRepository.save(internship);
+    }
+    @Override
+    public void deleteById(int id) {
+        internshipRepository.deleteById(id);
+    }
 
 }

@@ -8,4 +8,6 @@ import com.thinkIndia.backend.entities.Internship;
 public interface InternshipService {
     public Optional<Internship> findById(int id);
     public List<Internship> getUpcommingInternships();
+    public Internship savInternship(Internship internship);
+    public void deleteById(int id);
 }

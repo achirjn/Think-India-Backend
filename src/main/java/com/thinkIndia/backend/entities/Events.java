@@ -7,6 +7,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Lob;
 import jakarta.persistence.OneToMany;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,7 +23,9 @@ public class Events {
     private int id;
     private String name;
     private List<Integer> imageIdList;
+    @Lob
     private String details;
+    @Lob
     private String message;
     private LocalDateTime dateTime;
     private int isActive;

@@ -21,7 +21,6 @@ public class Internship {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    private String type;
     private String role;
     @Lob
     private String description;
@@ -33,4 +32,15 @@ public class Internship {
 
     @OneToMany(mappedBy="internship")
     private List<InternApplication> applications;
+
+    public Internship(String role, String description, String institute, LocalDate startDate, int duration,
+            String eligiblity, int isActive) {
+        this.role = role;
+        this.description = description;
+        this.institute = institute;
+        this.startDate = startDate;
+        this.duration = duration;
+        this.eligiblity = eligiblity;
+        this.isActive = isActive;
+    }
 }

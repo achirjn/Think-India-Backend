@@ -1,6 +1,7 @@
 package com.thinkIndia.backend.controllers;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +27,7 @@ import com.thinkIndia.backend.entities.Events;
 import com.thinkIndia.backend.entities.Glimpses;
 import com.thinkIndia.backend.entities.Images;
 import com.thinkIndia.backend.entities.InternPlacements;
+import com.thinkIndia.backend.entities.Internship;
 import com.thinkIndia.backend.entities.Recommendations;
 import com.thinkIndia.backend.entities.TeamMember;
 import com.thinkIndia.backend.services.BlogPostService;
@@ -33,8 +35,10 @@ import com.thinkIndia.backend.services.EventsService;
 import com.thinkIndia.backend.services.GlimpsesService;
 import com.thinkIndia.backend.services.ImageService;
 import com.thinkIndia.backend.services.InternPlacementsService;
+import com.thinkIndia.backend.services.InternshipService;
 import com.thinkIndia.backend.services.RecommendService;
 import com.thinkIndia.backend.services.TeamMemberService;
+
 
 
 
@@ -57,6 +61,8 @@ public class AdminController {
     private EventsService eventsService;
     @Autowired
     private InternPlacementsService internPlacementsService;
+    @Autowired
+    private InternshipService internshipService;
 
     // @CrossOrigin(origins = {"http://localhost:5173"})
     @PostMapping("/createBlog")
@@ -217,6 +223,34 @@ public class AdminController {
         eventsService.saveEvent(event);
         return new ResponseEntity<>(HttpStatus.OK);
     }
+    @GetMapping("/getHiddenEvents")
+    public ResponseEntity<?> getHiddenEvents() {
+        List<Events> hiddenEventsList = eventsService.getHiddenEvents();
+        return new ResponseEntity<>(hiddenEventsList, HttpStatus.OK);
+    }
+    
+    @GetMapping("/unHideEvent/{id}")
+    public ResponseEntity<?> unHideEvent(@PathVariable("id") int id){
+        Optional<Events> eventOptional = eventsService.findById(id);
+        if(eventOptional.isEmpty()) return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        Events event = eventOptional.get();
+        event.setShowEvent(1);
+        eventsService.saveEvent(event);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+    @PostMapping("/addUpcommingInternship")
+    public ResponseEntity<?> addUpcommingInternship(@RequestParam("Role") String role, @RequestParam(value="Desciption") String discription, @RequestParam(value="Institute") String institute, @RequestParam(value="eligiblity") String eligiblity, @RequestParam(value="Start Date") LocalDate starDate,@RequestParam(value="duration") int duration, @RequestParam(value="IsActive") int isActive) {
+        Internship internship = new Internship(role, discription, institute, starDate, duration, eligiblity, isActive);
+        internshipService.savInternship(internship);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+    @DeleteMapping("/removeInternship/{id}")
+    public ResponseEntity<?> removeInternship(@PathVariable("id") int id){
+        internshipService.deleteById(id);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+    
+
     @PostMapping("/addInternPlacements")
     public ResponseEntity<?> addInternPlacements(@RequestParam(value="Name") String studentName, @RequestParam(value="Institute") String instituteName, @RequestParam(value="Image") MultipartFile imageFile) {
         try {
@@ -234,7 +268,6 @@ public class AdminController {
     public ResponseEntity<?> deleteInternPlacements(@PathVariable("id") int id){
         internPlacementsService.deleteById(id);
         return new ResponseEntity<>(HttpStatus.OK);
-
     }
     
     

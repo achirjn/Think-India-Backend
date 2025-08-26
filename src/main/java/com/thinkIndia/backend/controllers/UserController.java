@@ -8,6 +8,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.OK;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -37,9 +38,6 @@ import com.thinkIndia.backend.services.InternshipService;
 import com.thinkIndia.backend.services.ResumeCVService;
 import com.thinkIndia.backend.services.UserService;
 
-import jakarta.servlet.ServletOutputStream;
-import jakarta.servlet.http.HttpServletResponse;
-
 
 
 @Controller
@@ -62,24 +60,34 @@ public class UserController {
     @Autowired
     private EventRegistrationService eventRegistrationService;
 
+    @GetMapping("/getUserData/{email}")
+    public ResponseEntity<?> getUserData( @PathVariable("email") String email) {
+        User user = (User) userService.loadUserByUsername(email);
+        if(user==null) return new ResponseEntity<>(NOT_FOUND);
+        return new ResponseEntity<>(user, HttpStatus.OK);
+    }
+    
+
     @PostMapping("/editProfile/{email}")
-    public ResponseEntity<?> editProfile(@RequestParam(value="Profile_pic") MultipartFile imageFile,
-    @RequestParam(value="UserName") String name, @PathVariable("image") String email) throws IOException {
+    public ResponseEntity<?> editProfile(@RequestParam(value="Profile_pic", required=false) MultipartFile imageFile,
+    @RequestParam(value="UserName") String name, @PathVariable("email") String email) throws IOException {
         
         User user = (User) userService.loadUserByUsername(email);
-        int savedImageId = uploadImage(imageFile);
-        user.setImageId(savedImageId);
+        int savedImageId;
+        if(imageFile!=null){
+            savedImageId = uploadImage(imageFile);
+            user.setImageId(savedImageId);
+        }
         user.setName(name);
         userService.saveUser(user);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @PostMapping("/changePassword/{email}")
-    public ResponseEntity<?> changePassword(@RequestParam(value="Old_password") String oldPassword,@RequestParam(value="New_password") String newPassword, @PathVariable("image") String email) {
+    public ResponseEntity<?> changePassword(@RequestParam(value="Old_password") String oldPassword,@RequestParam(value="New_password") String newPassword, @PathVariable("email") String email) {
         User user = (User) userService.loadUserByUsername(email);
-        oldPassword = passwordEncoder.encode(oldPassword);
-        if(!oldPassword.equals(user.getPassword())){
-            return new ResponseEntity<>("wrong old password.",HttpStatus.BAD_REQUEST);
+        if(!passwordEncoder.matches(oldPassword, user.getPassword())){
+            return new ResponseEntity<>("Wrong old password.", HttpStatus.BAD_REQUEST);
         }
         newPassword = passwordEncoder.encode(newPassword);
         user.setPassword(newPassword);
@@ -87,7 +95,7 @@ public class UserController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
     
-    @GetMapping("/uploadResume/{email}")
+    @PostMapping("/uploadResume/{email}")
     public ResponseEntity<?> uploadResume(@PathVariable("email") String email, @RequestParam(value="Resume_name") String name, @RequestParam(value="Resume_file") MultipartFile resumeFile) {
         User user = (User) userService.loadUserByUsername(email);
         ResumeCV resume;
@@ -98,32 +106,33 @@ public class UserController {
         } catch (IOException ex) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        return new ResponseEntity<>(resume,HttpStatus.OK);
-    }
-    @GetMapping("/downloadResumeCV/{id}")
-    public ResponseEntity<?> downloadResumeCV(@PathVariable("id") int resumeId, HttpServletResponse response) {
-        ServletOutputStream outputStream = null;
-        try {
-            Optional<ResumeCV> resumeOptional = resumeCVService.findById(resumeId);
-            if(resumeOptional.isEmpty()){
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-            }   ResumeCV resume = resumeOptional.get();
-            response.setContentType("application/octet-stream");
-            String headerKey = "Content-Disposition";
-            String headerValue = "attachment; filename=" + resume.getName();
-            response.setHeader(headerKey, headerValue);
-            outputStream = response.getOutputStream();
-            outputStream.write(resume.getData());
-        } catch (IOException ex){
-
-        } finally {
-            try {
-                outputStream.close();
-            } catch (IOException ex) {
-            }
-        }
         return new ResponseEntity<>(HttpStatus.OK);
     }
+    // @GetMapping("/downloadResumeCV/{id}")
+    // public ResponseEntity<?> downloadResumeCV(@PathVariable("id") int resumeId, HttpServletResponse response) {
+    //     ServletOutputStream outputStream = null;
+    //     try {
+    //         Optional<ResumeCV> resumeOptional = resumeCVService.findById(resumeId);
+    //         if(resumeOptional.isEmpty()){
+    //             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    //         }   
+    //         ResumeCV resume = resumeOptional.get();
+    //         response.setContentType("application/octet-stream");
+    //         String headerKey = "Content-Disposition";
+    //         String headerValue = "attachment; filename=" + resume.getName();
+    //         response.setHeader(headerKey, headerValue);
+    //         outputStream = response.getOutputStream();
+    //         outputStream.write(resume.getData());
+    //     } catch (IOException ex){
+
+    //     } finally {
+    //         try {
+    //             outputStream.close();
+    //         } catch (IOException ex) {
+    //         }
+    //     }
+    //     return new ResponseEntity<>(HttpStatus.OK);
+    // }
     @GetMapping("/getUpcommingInternships")
     public ResponseEntity<?> getUpcommingInternships() {
         List<Internship> upcommingInternships = internshipService.getUpcommingInternships();
