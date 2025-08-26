@@ -6,13 +6,9 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Lob;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Entity
-@Getter
-@Setter
 @NoArgsConstructor
 public class ResumeCV {
 
@@ -29,5 +25,24 @@ public class ResumeCV {
     public ResumeCV(String name, byte[] data) {
         this.data = data;
         this.name = name;
+    }
+
+    public void setName(String name){
+        this.name = name;
+    }
+    public String getName(){
+        return name;
+    }
+
+    public void setData(byte[] data) {
+        this.data = data;
+    }
+
+    public byte[] getData() {
+        return data;
+    }
+
+    public int getId() {
+        return id;
     }
 }

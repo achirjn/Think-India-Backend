@@ -18,5 +18,9 @@ public class ResumeCVServiceImpl implements ResumeCVService{
     public Optional<ResumeCV> findById(int id) {
         return resumeCVRepository.findById(id);
     }
+    @Override
+    public void deleteById(int resumeId) {
+        resumeCVRepository.deleteById(resumeId);
+    }
 
 }

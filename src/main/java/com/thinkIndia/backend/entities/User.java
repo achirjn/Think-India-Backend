@@ -40,7 +40,7 @@ public class User implements UserDetails{
     private LocalDateTime lastActive;
     private int imageId;
     
-    @OneToOne(cascade=CascadeType.ALL)
+    @OneToOne(cascade=CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name="resume_id",referencedColumnName="id")
     private ResumeCV resumeCV;
 

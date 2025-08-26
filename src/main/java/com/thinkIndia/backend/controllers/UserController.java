@@ -98,6 +98,7 @@ public class UserController {
     @PostMapping("/uploadResume/{email}")
     public ResponseEntity<?> uploadResume(@PathVariable("email") String email, @RequestParam(value="Resume_name") String name, @RequestParam(value="Resume_file") MultipartFile resumeFile) {
         User user = (User) userService.loadUserByUsername(email);
+        ResumeCV oldResume = user.getResumeCV();
         ResumeCV resume;
         try {
             resume = new ResumeCV(name, resumeFile.getBytes());
@@ -106,33 +107,46 @@ public class UserController {
         } catch (IOException ex) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
+        if(oldResume!=null){
+            int resumeId = oldResume.getId();
+            resumeCVService.deleteById(resumeId);
+        }
         return new ResponseEntity<>(HttpStatus.OK);
     }
+    //resume is downloaded from frontend itsel cause getUserData doesnt return resume id without which download api wont work
+
     // @GetMapping("/downloadResumeCV/{id}")
-    // public ResponseEntity<?> downloadResumeCV(@PathVariable("id") int resumeId, HttpServletResponse response) {
-    //     ServletOutputStream outputStream = null;
+    // public void downloadResumeCV(@PathVariable("id") int resumeId, HttpServletResponse response) throws IOException {
     //     try {
     //         Optional<ResumeCV> resumeOptional = resumeCVService.findById(resumeId);
-    //         if(resumeOptional.isEmpty()){
-    //             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-    //         }   
-    //         ResumeCV resume = resumeOptional.get();
-    //         response.setContentType("application/octet-stream");
-    //         String headerKey = "Content-Disposition";
-    //         String headerValue = "attachment; filename=" + resume.getName();
-    //         response.setHeader(headerKey, headerValue);
-    //         outputStream = response.getOutputStream();
-    //         outputStream.write(resume.getData());
-    //     } catch (IOException ex){
-
-    //     } finally {
-    //         try {
-    //             outputStream.close();
-    //         } catch (IOException ex) {
+    //         if (resumeOptional.isEmpty()) {
+    //             response.sendError(HttpServletResponse.SC_NOT_FOUND, "Resume not found");
+    //             return;
     //         }
+
+    //         ResumeCV resume = resumeOptional.get();
+
+    //         // Set response headers
+    //         response.setContentType("application/pdf");
+    //         response.setContentLength(resume.getData().length);
+
+    //         String headerKey = "Content-Disposition";
+    //         String headerValue = "attachment; filename=\"" + resume.getName() + ".pdf\"";
+    //         response.setHeader(headerKey, headerValue);
+
+    //         // Write the file data to response
+    //         ServletOutputStream outputStream = response.getOutputStream();
+    //         outputStream.write(resume.getData());
+    //         outputStream.flush();
+
+    //     } catch (IOException ex) {
+    //         // Log the error and send error response
+    //         System.err.println("Error downloading resume: " + ex.getMessage());
+    //         response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Error downloading file");
+    //         throw ex;
     //     }
-    //     return new ResponseEntity<>(HttpStatus.OK);
     // }
+
     @GetMapping("/getUpcommingInternships")
     public ResponseEntity<?> getUpcommingInternships() {
         List<Internship> upcommingInternships = internshipService.getUpcommingInternships();
