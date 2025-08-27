@@ -12,4 +12,5 @@ public interface EventsService {
     public List<Events> getPastEvents();
     public List<Events> getUpcommingEvents();
     public List<Events> getHiddenEvents();
+    public void deleteById(int id);
 }

@@ -64,7 +64,6 @@ public class AdminController {
     @Autowired
     private InternshipService internshipService;
 
-    // @CrossOrigin(origins = {"http://localhost:5173"})
     @PostMapping("/createBlog")
     public ResponseEntity<?> createBlog(@RequestParam("Title") String title , @RequestParam("Excerpt") String excerpt, @RequestParam("Cover_image") MultipartFile imageFile) throws IOException {
         title = title.stripLeading();
@@ -79,11 +78,12 @@ public class AdminController {
     }
     @DeleteMapping("/deleteBlog/{heading}")
     public ResponseEntity<?> deleteBlog(@PathVariable(value="heading") String heading){
+        BlogPost blog = blogService.findByHeading(heading);
+        deleteImage(blog.getImageId());
         blogService.deleteByHeading(heading);
         return new ResponseEntity<>(HttpStatus.OK);
     }
     
-    // @CrossOrigin(origins = {"http://localhost:5173"})
     @PostMapping("/addGlimpse")
     public ResponseEntity<?> addGlimpse(@RequestParam("Name") String name, @RequestParam("Glimpse_image") MultipartFile imageFile) throws IOException{
         name = name.stripLeading();
@@ -98,11 +98,12 @@ public class AdminController {
     }
     @DeleteMapping("/deleteGlimpse/{name}")
     public ResponseEntity<?> deleteGlimpse(@PathVariable(value="name") String name){
+        Glimpses glimpse = glimpsesService.findByName(name);
+        deleteImage(glimpse.getImageId());
         glimpsesService.deleteByName(name);
         return new ResponseEntity<>(HttpStatus.OK);
     }
     
-    // @CrossOrigin(origins = {"http://localhost:5173"})
     @GetMapping("/showUnresolvedRecommendations")
     public ResponseEntity<?> showUnresolvedRecommendations() {
         List<Recommendations> recommendList = recommendService.showUnresolvedRecommendations();
@@ -113,7 +114,6 @@ public class AdminController {
         }
         return new ResponseEntity<>(recommendDtoList, HttpStatus.OK);
     }
-    // @CrossOrigin(origins = {"http://localhost:5173"})
     @GetMapping("/showResolvedRecommendations")
     public ResponseEntity<?> showResolvedRecommendations() {
         List<Recommendations> recommendList = recommendService.showResolvedRecommendations();
@@ -124,13 +124,11 @@ public class AdminController {
         }
         return new ResponseEntity<>(recommendDtoList, HttpStatus.OK);
     }
-    // @CrossOrigin(origins = {"http://localhost:5173"})
     @DeleteMapping("/removeRecommendation/{id}")
     public ResponseEntity<?> removeRecommendation(@PathVariable(value="id") int recommendationId){
         recommendService.deleteById(recommendationId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
-    // @CrossOrigin(origins = {"http://localhost:5173"})
     @PutMapping("/resolveRecommendation/{id}")
     public ResponseEntity<?> resolveRecommendation(@PathVariable(value="id") int recommendationId) {
         Recommendations recommendation = recommendService.getById(recommendationId).get();
@@ -168,7 +166,7 @@ public class AdminController {
     }
     @PostMapping("/addEvent")
     public ResponseEntity<?> addevents(@RequestParam("Name") String name,@RequestParam(value="Images", required=false) List<MultipartFile> imageList, @RequestParam(value="Details") String details, @RequestParam(value="Message",required=false) String message, @RequestParam(value="DateTime") LocalDateTime dateTime, @RequestParam(value="IsActive") int isActive, @RequestParam(value="ShowEvent") int showEvent) {
-        Events events = new Events();
+        Events events;
         if(imageList != null && !imageList.isEmpty()){
             List<Integer> imageIdList = new ArrayList<>();
             for(MultipartFile image: imageList){
@@ -238,6 +236,17 @@ public class AdminController {
         eventsService.saveEvent(event);
         return new ResponseEntity<>(HttpStatus.OK);
     }
+    @DeleteMapping("/deleteEvent/{id}")
+    public void deleteEvent(@PathVariable("id") int id){
+        Optional<Events> eventOptional = eventsService.findById(id);
+        if(eventOptional.isEmpty()) return;
+        List<Integer> imageIdList = eventOptional.get().getImageIdList();
+        for(int imageId : imageIdList){
+            deleteImage(imageId);
+        }
+        eventsService.deleteById(id);
+    }
+
     @PostMapping("/addUpcommingInternship")
     public ResponseEntity<?> addUpcommingInternship(@RequestParam("Role") String role, @RequestParam(value="Desciption") String discription, @RequestParam(value="Institute") String institute, @RequestParam(value="eligiblity") String eligiblity, @RequestParam(value="Start Date") LocalDate starDate,@RequestParam(value="duration") int duration, @RequestParam(value="IsActive") int isActive) {
         Internship internship = new Internship(role, discription, institute, starDate, duration, eligiblity, isActive);
@@ -252,12 +261,10 @@ public class AdminController {
     
 
     @PostMapping("/addInternPlacements")
-    public ResponseEntity<?> addInternPlacements(@RequestParam(value="Name") String studentName, @RequestParam(value="Institute") String instituteName, @RequestParam(value="Image") MultipartFile imageFile) {
+    public ResponseEntity<?> addInternPlacements(@RequestParam(value="Name") String studentName,@RequestParam(value="Designation") String designation,@RequestParam(value="Role") String role, @RequestParam(value="Institute") String instituteName, @RequestParam(value="Image") MultipartFile imageFile, @RequestParam(value="Message") String message) {
         try {
             int savedImageId = uploadImage(imageFile);
-            InternPlacements internPlacement;
-            if(studentName!=null) internPlacement = new InternPlacements(studentName, instituteName, savedImageId);
-            else internPlacement = new InternPlacements(savedImageId);
+            InternPlacements internPlacement = new InternPlacements(designation, savedImageId, instituteName, message, role, studentName);
             internPlacementsService.saveInternPlacedData(internPlacement);
         } catch (IOException ex) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -266,6 +273,8 @@ public class AdminController {
     }
     @DeleteMapping("/removeInternPlacedData/{id}")
     public ResponseEntity<?> deleteInternPlacements(@PathVariable("id") int id){
+        Optional<InternPlacements> internPlacedOptional = internPlacementsService.findById(id);
+        deleteImage(internPlacedOptional.get().getImageId());
         internPlacementsService.deleteById(id);
         return new ResponseEntity<>(HttpStatus.OK);
     }

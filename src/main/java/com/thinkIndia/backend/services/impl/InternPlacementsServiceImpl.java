@@ -1,6 +1,7 @@
 package com.thinkIndia.backend.services.impl;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -28,6 +29,11 @@ public class InternPlacementsServiceImpl implements InternPlacementsService{
     @Override
     public void deleteById(int id) {
         internPlacementsRepository.deleteById(id);
+    }
+
+    @Override
+    public Optional<InternPlacements> findById(int id) {
+        return internPlacementsRepository.findById(id);
     }
 
 }

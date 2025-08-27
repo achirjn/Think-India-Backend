@@ -75,6 +75,7 @@ public class UserController {
         User user = (User) userService.loadUserByUsername(email);
         int savedImageId;
         if(imageFile!=null){
+            if(user.getImageId()!=-1) deleteImage(user.getImageId());
             savedImageId = uploadImage(imageFile);
             user.setImageId(savedImageId);
         }
@@ -231,5 +232,8 @@ public class UserController {
         Images savedImage = imageService.saveImage(image);
         if(savedImage==null) return -1;
         return savedImage.getId();
+    }
+    public void deleteImage(int id){
+        imageService.deleteById(id);
     }
 }

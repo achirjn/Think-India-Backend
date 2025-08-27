@@ -8,4 +8,5 @@ public interface GlimpsesService {
     public List<Glimpses> findAll();
     public Glimpses createEvent(Glimpses event);
     public void deleteByName(String eventName);
+    public Glimpses findByName(String name);
 }

@@ -33,4 +33,9 @@ public class GlimpsesServiceImpl implements GlimpsesService{
     public void deleteByName(String eventName){
         eventRepository.deleteByName(eventName);
     }
+
+    @Override
+    public Glimpses findByName(String name) {
+        return eventRepository.findByName(name);
+    }
 }

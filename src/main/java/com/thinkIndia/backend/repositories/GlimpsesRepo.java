@@ -9,4 +9,6 @@ import com.thinkIndia.backend.entities.Glimpses;
 public interface GlimpsesRepo extends JpaRepository<Glimpses, Integer>{
     
     public void deleteByName(String eventName);
+
+    public Glimpses findByName(String name);
 }

@@ -39,4 +39,9 @@ public class BlogPostServiceImpl implements BlogPostService{
     public void deleteByHeading(String heading) {
         blogRepository.deleteByHeading(heading);
     }
+
+    @Override
+    public BlogPost findByHeading(String heading) {
+        return blogRepository.findByHeading(heading);
+    }
 }

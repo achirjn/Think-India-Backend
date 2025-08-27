@@ -25,7 +25,6 @@ public class UserAuthController {
     }
 
 
-    // @CrossOrigin(origins = {"http://localhost:5173"})
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(UserDto userDto) {
         String encodedPassword = passwordEncoder.encode(userDto.getPassword());

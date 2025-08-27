@@ -35,5 +35,9 @@ public class EventsServiceImpl implements EventsService{
     public List<Events> getHiddenEvents() {
         return eventsRepository.getHiddenEvents();
     }
+    @Override
+    public void deleteById(int id) {
+        eventsRepository.deleteById(id);
+    }
 
 }

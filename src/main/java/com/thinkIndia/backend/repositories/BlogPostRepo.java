@@ -9,4 +9,6 @@ import com.thinkIndia.backend.entities.BlogPost;
 public interface BlogPostRepo extends JpaRepository<BlogPost, Integer>{
 
     public void deleteByHeading(String heading);
+
+    public BlogPost findByHeading(String heading);
 }

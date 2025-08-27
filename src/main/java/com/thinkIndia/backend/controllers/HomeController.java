@@ -1,6 +1,5 @@
 package com.thinkIndia.backend.controllers;
 
-import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
@@ -14,8 +13,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.thinkIndia.backend.dto.BlogDto;
-import com.thinkIndia.backend.dto.GlimpsesDto;
 import com.thinkIndia.backend.dto.ImageDto;
 import com.thinkIndia.backend.entities.BlogPost;
 import com.thinkIndia.backend.entities.Glimpses;
@@ -49,7 +46,6 @@ public class HomeController {
     @Autowired
     private InternPlacementsService internPlacementsService;
 
-    // @CrossOrigin(origins = {"http://localhost:5173"})
     @PostMapping("/recommend")
     public ResponseEntity<?> saveRecommendation(@RequestParam("Name") String name, @RequestParam("Email") String email, @RequestParam("Message") String message) {
         Recommendations recommendation = new Recommendations(name, email, message);
@@ -58,29 +54,28 @@ public class HomeController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    // @CrossOrigin(origins = {"http://localhost:5173"})
     @GetMapping("/blogPageGetAllBlogs")
     public ResponseEntity<?> allBlogs() {
         List<BlogPost> blogsList = blogPostService.getAllBlogs();
-        List<BlogDto> blogDtoList = new ArrayList<>();
-        for(BlogPost it: blogsList){
-            BlogDto tempDto = new BlogDto(it.getImageId(), it.getHeading(), it.getContent(),it.getPostTime());
-            blogDtoList.add(tempDto);
-        }
-        return new ResponseEntity<>(blogDtoList, HttpStatus.OK);
+        // List<BlogDto> blogDtoList = new ArrayList<>();
+        // for(BlogPost it: blogsList){
+        //     BlogDto tempDto = new BlogDto(it.getImageId(), it.getHeading(), it.getContent(),it.getPostTime());
+        //     blogDtoList.add(tempDto);
+        // }
+        // return new ResponseEntity<>(blogDtoList, HttpStatus.OK);
+        return new ResponseEntity<>(blogsList, HttpStatus.OK);
     }
-    // @CrossOrigin(origins = {"http://localhost:5173"})
     @GetMapping("/blog/{id}")
     public ResponseEntity<?> getBlog(@PathVariable(value="id") int blogId) {
         Optional<BlogPost> blogPostOptional = blogPostService.getBlogById(blogId);
         if(blogPostOptional.isEmpty()) return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         BlogPost blog = blogPostOptional.get();
         
-        BlogDto blogDto = new BlogDto(blog.getImageId(), blog.getHeading(), blog.getContent(),blog.getPostTime());
-        return new ResponseEntity<>(blogDto, HttpStatus.OK);
+        // BlogDto blogDto = new BlogDto(blog.getImageId(), blog.getHeading(), blog.getContent(),blog.getPostTime());
+        // return new ResponseEntity<>(blogDto, HttpStatus.OK);
+        return new ResponseEntity<>(blog, HttpStatus.OK);
     }
     
-    // @CrossOrigin(origins = {"http://localhost:5173"})
     @GetMapping("/image/{id}")
     public ResponseEntity<?> getImage(@PathVariable(value="id") int imageId) {
         Optional<Images> imageOptional = imageService.getImageById(imageId);
@@ -91,16 +86,16 @@ public class HomeController {
         return new ResponseEntity<>(imageDto, HttpStatus.OK);
     }
     
-    // @CrossOrigin(origins = {"http://localhost:5173"})
     @GetMapping("/glimpses")
     public ResponseEntity<?> getglimpses() {
         List<Glimpses> glimpsesList = glimpsesService.findAll();
-        List<GlimpsesDto> glimpsesDtoList = new ArrayList<>();
-        for(Glimpses ev: glimpsesList){
-            GlimpsesDto tempDto = new GlimpsesDto(ev.getImageId(), ev.getName());
-            glimpsesDtoList.add(tempDto);
-        }
-        return new ResponseEntity<>(glimpsesDtoList, HttpStatus.OK);
+        // List<GlimpsesDto> glimpsesDtoList = new ArrayList<>();
+        // for(Glimpses ev: glimpsesList){
+        //     GlimpsesDto tempDto = new GlimpsesDto(ev.getImageId(), ev.getName());
+        //     glimpsesDtoList.add(tempDto);
+        // }
+        // return new ResponseEntity<>(glimpsesDtoList, HttpStatus.OK);
+        return new ResponseEntity<>(glimpsesList, HttpStatus.OK);
     }
     
     @GetMapping("/getMemberByPosition/{position}")

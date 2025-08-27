@@ -11,4 +11,5 @@ public interface BlogPostService {
     public List<BlogPost> getAllBlogs();
     public Optional<BlogPost> getBlogById(int id);
     public void deleteByHeading(String heading);
+    public BlogPost findByHeading(String heading);
 }

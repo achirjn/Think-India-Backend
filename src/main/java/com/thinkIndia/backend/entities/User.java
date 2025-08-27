@@ -38,7 +38,7 @@ public class User implements UserDetails{
     private boolean adminPermit;
 
     private LocalDateTime lastActive;
-    private int imageId;
+    private int imageId=-1;
     
     @OneToOne(cascade=CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name="resume_id",referencedColumnName="id")
