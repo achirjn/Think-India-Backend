@@ -15,12 +15,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.thinkIndia.backend.dto.ImageDto;
 import com.thinkIndia.backend.entities.BlogPost;
+import com.thinkIndia.backend.entities.Events;
 import com.thinkIndia.backend.entities.Glimpses;
 import com.thinkIndia.backend.entities.Images;
 import com.thinkIndia.backend.entities.InternPlacements;
 import com.thinkIndia.backend.entities.Recommendations;
 import com.thinkIndia.backend.entities.TeamMember;
 import com.thinkIndia.backend.services.BlogPostService;
+import com.thinkIndia.backend.services.EventsService;
 import com.thinkIndia.backend.services.GlimpsesService;
 import com.thinkIndia.backend.services.ImageService;
 import com.thinkIndia.backend.services.InternPlacementsService;
@@ -45,6 +47,8 @@ public class HomeController {
     private TeamMemberService teamMemberService;
     @Autowired
     private InternPlacementsService internPlacementsService;
+    @Autowired
+    private EventsService eventsService;
 
     @PostMapping("/recommend")
     public ResponseEntity<?> saveRecommendation(@RequestParam("Name") String name, @RequestParam("Email") String email, @RequestParam("Message") String message) {
@@ -114,6 +118,17 @@ public class HomeController {
     public ResponseEntity<?> getInternPlacements() {
         List<InternPlacements> internPlacementsList = internPlacementsService.getInternPlacements();
         return new ResponseEntity<>(internPlacementsList, HttpStatus.OK);
+    }
+
+    @GetMapping("/pastEvents")
+    public ResponseEntity<?> getPastEvents() {
+        List<Events> eventList = eventsService.getPastEvents();
+        return new ResponseEntity<>(eventList, HttpStatus.OK);
+    }
+    @GetMapping("/upcommingEvents")
+    public ResponseEntity<?> getUpcommingEvents() {
+        List<Events> eventList = eventsService.getUpcommingEvents();
+        return new ResponseEntity<>(eventList, HttpStatus.OK);
     }
     
 }

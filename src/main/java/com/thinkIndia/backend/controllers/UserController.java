@@ -188,16 +188,6 @@ public class UserController {
         return new ResponseEntity<>(userInternshipsDtoList, HttpStatus.OK);
     }
     
-    @GetMapping("/pastEvents")
-    public ResponseEntity<?> getPastEvents() {
-        List<Events> eventList = eventsService.getPastEvents();
-        return new ResponseEntity<>(eventList, HttpStatus.OK);
-    }
-    @GetMapping("/upcommingEvents")
-    public ResponseEntity<?> getUpcommingEvents() {
-        List<Events> eventList = eventsService.getUpcommingEvents();
-        return new ResponseEntity<>(eventList, HttpStatus.OK);
-    }
     @PostMapping("/registerEvent/{userEmail}/{eventId}")
     public ResponseEntity<?> registerEvent(@RequestParam(value="Team_id", required=false) String teamId,@RequestParam(value="Team_name", required=false) String teamName, @PathVariable("userEmail") String email, @PathVariable("eventId") int eventId) {
         User user = (User) userService.loadUserByUsername(email);

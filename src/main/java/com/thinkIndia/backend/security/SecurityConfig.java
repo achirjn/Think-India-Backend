@@ -1,7 +1,9 @@
 package com.thinkIndia.backend.security;
 
+import java.util.Arrays;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -26,6 +28,9 @@ public class SecurityConfig {
     private OAuthAuthenticationSuccessHandler successHandler;
     private UserDetailsService userDetailsService;
     private JwtUtil jwtUtil;
+
+    @Value("${app.cors.allowed-origins}")
+    private String allowedOrigins;
 
     public SecurityConfig(OAuthAuthenticationSuccessHandler successHandler, UserDetailsService userDetailsService, JwtUtil jwtUtil){
         this.successHandler = successHandler;
@@ -77,7 +82,7 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
         
         // This is the origin of your React app
-        configuration.setAllowedOrigins(List.of("http://localhost:5173")); 
+        configuration.setAllowedOrigins(Arrays.asList(allowedOrigins.split(","))); 
         
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));

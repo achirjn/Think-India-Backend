@@ -1,0 +1,14 @@
+# Maven
+/target/
+
+# IDE files (e.g., from IntelliJ, Eclipse, VS Code)
+.idea/
+.project
+.classpath
+.settings/
+*.iml
+.vscode/
+
+# Operating System files
+.DS_Store
+Thumbs.db
