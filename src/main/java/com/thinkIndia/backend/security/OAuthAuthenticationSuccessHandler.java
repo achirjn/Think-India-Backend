@@ -2,6 +2,7 @@ package com.thinkIndia.backend.security;
 
 import java.io.IOException;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -25,6 +26,8 @@ public class OAuthAuthenticationSuccessHandler implements AuthenticationSuccessH
     private UserService userService;
     private JwtUtil jwtUtil;
     private PasswordEncoder passwordEncoder;
+    @Value("${FRONTEND_URL}")
+    private String frontendUrl;
 
     public OAuthAuthenticationSuccessHandler(JwtUtil jwtUtil,@Lazy PasswordEncoder passwwEncoder, UserService userService) {
         this.jwtUtil = jwtUtil;
@@ -60,7 +63,7 @@ public class OAuthAuthenticationSuccessHandler implements AuthenticationSuccessH
                 boolean isAdmin = user.getAuthorities().stream()
                         .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_ADMIN"));
 
-                String redirectUrl = UriComponentsBuilder.fromUriString("http://localhost:5173/")
+                String redirectUrl = UriComponentsBuilder.fromUriString(frontendUrl)
                 .queryParam("token", jwtToken)
                 .queryParam("isAdmin", isAdmin)
                 .build().toUriString();
