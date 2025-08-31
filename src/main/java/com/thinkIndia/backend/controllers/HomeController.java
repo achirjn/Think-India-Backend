@@ -50,6 +50,11 @@ public class HomeController {
     @Autowired
     private EventsService eventsService;
 
+    @GetMapping("/health")
+    public ResponseEntity<?> doHealthCheckup() {
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+    
     @PostMapping("/recommend")
     public ResponseEntity<?> saveRecommendation(@RequestParam("Name") String name, @RequestParam("Email") String email, @RequestParam("Message") String message) {
         Recommendations recommendation = new Recommendations(name, email, message);
