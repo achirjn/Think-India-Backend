@@ -65,7 +65,7 @@ public void onAuthenticationSuccess(HttpServletRequest request, HttpServletRespo
         boolean isAdmin = user.getAuthorities().stream()
                 .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_ADMIN"));
 
-                String redirectUrl = UriComponentsBuilder.fromUriString("http://localhost:5173/")
+                String redirectUrl = UriComponentsBuilder.fromUriString("https://www.thinkindiasvnit.in/")
                 .queryParam("token", jwtToken)
                 .queryParam("isAdmin", isAdmin)
                 .build().toUriString();
@@ -80,7 +80,7 @@ public void onAuthenticationSuccess(HttpServletRequest request, HttpServletRespo
         e.printStackTrace(); // This prints the full error stack trace to the log
 
         // Redirect to a generic error page so the user isn't stuck
-        String errorUrl = UriComponentsBuilder.fromUriString("http://localhost:5173")
+        String errorUrl = UriComponentsBuilder.fromUriString("https://www.thinkindiasvnit.in/")
                               .queryParam("error", "LoginProcessingFailed")
                               .build().toUriString();
         new DefaultRedirectStrategy().sendRedirect(request, response, errorUrl);

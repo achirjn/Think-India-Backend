@@ -65,14 +65,14 @@ public class SecurityConfig {
             .cors(withDefaults())
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                .requestMatchers("/login/oauth2/code/google").permitAll()
+                .requestMatchers("/login/oauth2/**").permitAll()
                 .anyRequest().permitAll()
                 )
                 .csrf(csrf -> csrf.disable())
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterAfter(jwtValidationFilter, JwtAuthenticationFilter.class);
         http.oauth2Login(oauth -> {
-            oauth.loginPage("http://localhost:5173/login");
+            oauth.loginPage("https://www.thinkindiasvnit.in/login");
             oauth.successHandler(successHandler);
         });
         return http.build();
