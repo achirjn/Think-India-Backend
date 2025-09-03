@@ -31,8 +31,8 @@ public class SecurityConfig {
 
     @Value("${app.cors.allowed-origins}")
     private String allowedOrigins;
-    @Value("${FRONTEND_URL}")
-    private String frontendUrl;
+    // @Value("${FRONTEND_URL}")
+    // private String frontendUrl;
 
     public SecurityConfig(OAuthAuthenticationSuccessHandler successHandler, UserDetailsService userDetailsService, JwtUtil jwtUtil){
         this.successHandler = successHandler;
@@ -74,7 +74,8 @@ public class SecurityConfig {
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterAfter(jwtValidationFilter, JwtAuthenticationFilter.class);
         http.oauth2Login(oauth -> {
-            oauth.loginPage(frontendUrl+"/login");
+            // oauth.loginPage(frontendUrl+"/login");
+            oauth.loginPage("http://localhost:5173/login");
             oauth.successHandler(successHandler);
         });
         return http.build();
