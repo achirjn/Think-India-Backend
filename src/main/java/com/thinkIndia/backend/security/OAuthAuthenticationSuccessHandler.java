@@ -25,8 +25,6 @@ public class OAuthAuthenticationSuccessHandler implements AuthenticationSuccessH
     private UserService userService;
     private JwtUtil jwtUtil;
     private PasswordEncoder passwordEncoder;
-    // @Value("${FRONTEND_URL}")
-    // private String frontendUrl;
 
     public OAuthAuthenticationSuccessHandler(JwtUtil jwtUtil,@Lazy PasswordEncoder passwwEncoder, UserService userService) {
         this.jwtUtil = jwtUtil;
@@ -67,7 +65,7 @@ public void onAuthenticationSuccess(HttpServletRequest request, HttpServletRespo
         boolean isAdmin = user.getAuthorities().stream()
                 .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_ADMIN"));
 
-        String redirectUrl = UriComponentsBuilder.fromUriString("http://localhost:5173")
+                String redirectUrl = UriComponentsBuilder.fromUriString("http://localhost:5173/")
                 .queryParam("token", jwtToken)
                 .queryParam("isAdmin", isAdmin)
                 .build().toUriString();
