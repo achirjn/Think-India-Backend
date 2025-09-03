@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
@@ -166,7 +165,7 @@ public class AdminController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
     @PostMapping("/addEvent")
-    public ResponseEntity<?> addevents(@RequestParam("Name") String name,@RequestParam(value="Images", required=false) List<MultipartFile> imageList, @RequestParam(value="Details") String details, @RequestParam(value="Message",required=false) String message, @RequestParam(value="DateTime") @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime dateTime, @RequestParam(value="IsActive") int isActive, @RequestParam(value="ShowEvent") int showEvent) {
+    public ResponseEntity<?> addevents(@RequestParam("Name") String name,@RequestParam(value="Images", required=false) List<MultipartFile> imageList, @RequestParam(value="Details") String details, @RequestParam(value="Message",required=false) String message, @RequestParam(value="DateTime") LocalDateTime dateTime, @RequestParam(value="IsActive") int isActive, @RequestParam(value="ShowEvent") int showEvent) {
         Events events;
         if(imageList != null && !imageList.isEmpty()){
             List<Integer> imageIdList = new ArrayList<>();
@@ -175,10 +174,7 @@ public class AdminController {
                     int savedImageId = uploadImage(image);
                     if(savedImageId==-1) return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
                     imageIdList.add(savedImageId);
-                } catch (IOException e) {
-                    System.err.println("Error creating event: " + e.getMessage());
-                    e.printStackTrace();
-                    return ResponseEntity.badRequest().body("Error: " + e.getMessage());
+                } catch (IOException ex) {
                 }
             }
             events = new Events(dateTime, details, imageIdList,message, name, isActive, showEvent);
