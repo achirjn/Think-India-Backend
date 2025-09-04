@@ -2,7 +2,6 @@ package com.thinkIndia.backend.security;
 
 import java.io.IOException;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -35,9 +34,8 @@ public class OAuthAuthenticationSuccessHandler implements AuthenticationSuccessH
     
 
     @Override
-    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
-            Authentication authentication) throws IOException, ServletException {
-
+    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,Authentication authentication) throws IOException, ServletException {
+        try{
                 DefaultOAuth2User oAuthUser = (DefaultOAuth2User) authentication.getPrincipal();
                 String name = oAuthUser.getName();
                 String email = oAuthUser.getAttribute("email").toString();
