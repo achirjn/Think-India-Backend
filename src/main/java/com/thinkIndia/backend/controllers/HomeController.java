@@ -50,8 +50,8 @@ public class HomeController {
     @Autowired
     private EventsService eventsService;
 
-    @GetMapping("/health")
-    public ResponseEntity<?> doHealthCheckup() {
+    @GetMapping("/")
+    public ResponseEntity<?> baseCheckup() {
         return new ResponseEntity<>(HttpStatus.OK);
     }
     
