@@ -2,6 +2,7 @@ package com.thinkIndia.backend.security;
 
 import java.io.IOException;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -34,42 +35,37 @@ public class OAuthAuthenticationSuccessHandler implements AuthenticationSuccessH
     
 
     @Override
-public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
-                                    Authentication authentication) throws IOException, ServletException {
-    try {
-        // --- ALL OF YOUR EXISTING LOGIC GOES INSIDE THIS TRY BLOCK ---
-        DefaultOAuth2User oAuthUser = (DefaultOAuth2User) authentication.getPrincipal();
-        String name = oAuthUser.getAttribute("name"); // Using getAttribute for name as well for consistency
-        String email = oAuthUser.getAttribute("email");
+    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
+            Authentication authentication) throws IOException, ServletException {
 
-        System.out.println("OAuth Success: " + name + " | " + email);
-
-        User user;
-        try {
-            user = (User) userService.loadUserByUsername(email);
-        } catch (UsernameNotFoundException e) {
-            user = null;
-        }
-
-        if (user == null) {
-            System.out.println("Creating new user for email: " + email);
-            String encodedPassword = passwordEncoder.encode("a-very-long-random-password-for-oauth-users");
-            user = new User(name, email, encodedPassword, email.equals("achirjain11@gmail.com"));
-            user = userService.saveUser(user);
-            System.out.println("Successfully saved new user: " + user);
-        }
-
-        String jwtToken = jwtUtil.generateToken(user.getEmail(), user.getAuthorities(), 15L);
-        System.out.println("Generated JWT Token successfully.");
-
-        boolean isAdmin = user.getAuthorities().stream()
-                .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_ADMIN"));
+                DefaultOAuth2User oAuthUser = (DefaultOAuth2User) authentication.getPrincipal();
+                String name = oAuthUser.getName();
+                String email = oAuthUser.getAttribute("email").toString();
+                System.out.println(name+"  "+email);
+                
+                User user;
+                try {
+                    user = (User) userService.loadUserByUsername(email);
+                } catch (UsernameNotFoundException e) {
+                    user = null;
+                }
+                if (user == null) {
+                    System.out.println("new user");
+                    String encodedPassword = passwordEncoder.encode("gw(8ehnbeiub*(*7766hspoiaw)(^6sa5&s*%78iofgwskl23gs");
+                    user = new User(name, email,encodedPassword, email.equals("achirjain11@gmail.com"));
+                    user = userService.saveUser(user);
+                    System.out.println("saved user: "+ user);
+                }
+                String jwtToken = jwtUtil.generateToken(user.getEmail(), user.getAuthorities(), 15L);
+                System.out.println("token: "+ jwtToken);
+                boolean isAdmin = user.getAuthorities().stream()
+                        .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_ADMIN"));
 
                 String redirectUrl = UriComponentsBuilder.fromUriString("https://www.thinkindiasvnit.in/")
                 .queryParam("token", jwtToken)
                 .queryParam("isAdmin", isAdmin)
                 .build().toUriString();
-        System.out.println("Redirecting to: " + redirectUrl);
+                System.out.println("redirect to "+ redirectUrl);
 
         new DefaultRedirectStrategy().sendRedirect(request, response, redirectUrl);
         // --- END OF EXISTING LOGIC ---

@@ -21,10 +21,6 @@ public class JwtUtil {
     private static final String SECRET_KEY = "sdkpoLjgsJKdOF23SDs0400sdl=GGstwwbxB,/sggw";
     private static final Key key = Keys.hmacShaKeyFor(SECRET_KEY.getBytes(StandardCharsets.UTF_8));
 
-    public JwtUtil() {
-        System.out.println("--- JWT UTIL V4 DEPLOYED --- THIS IS THE NEWEST VERSION ---");
-    }
-    
     public String generateToken(String email, Collection<? extends GrantedAuthority> authorities, long expiryMinutes) {
         List<String> roles = authorities.stream()
                 .map(GrantedAuthority::getAuthority)
