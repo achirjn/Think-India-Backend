@@ -2,9 +2,12 @@ package com.thinkIndia.backend.helper;
 
 import java.util.Random;
 
+import lombok.NoArgsConstructor;
+
+@NoArgsConstructor
 public class RandomStringGenerator {
 
-    private static final String CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&";
+    private static final String CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
     public static String generateRandomString(int length) {
         if (length < 0) {

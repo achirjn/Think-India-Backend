@@ -1,7 +1,6 @@
 package com.thinkIndia.backend.entities;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -18,6 +17,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -26,6 +26,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
+@AllArgsConstructor
 public class User implements UserDetails{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -33,6 +34,8 @@ public class User implements UserDetails{
     private String name;
     private String email;
     private String password;
+    private String verificationToken;
+    private int accountVerified;
     
     @Column(columnDefinition = "TINYINT(1)")
     private boolean adminPermit;
@@ -51,13 +54,41 @@ public class User implements UserDetails{
     private List<EventRegistration> registeredEvents;
     
 
-    public User(String name, String email, String password){
+    public User(String name, String email, String password, int accountVerified){
         this.name = name;
         this.email = email;
         this.password = password;
         this.adminPermit = false;
         this.imageId = -1;
-        this.appliedInternships = new ArrayList<>();
+        this.accountVerified = accountVerified;
+    }
+    public User(String name, String email, String password,String verificationToken, int accountVerified){
+        this.name = name;
+        this.email = email;
+        this.password = password;
+        this.verificationToken = verificationToken;
+        this.adminPermit = false;
+        this.imageId = -1;
+        this.accountVerified = accountVerified;
+    }
+    public User(int id, String name, String email, String password, int accountVerified) {
+        this.id = id;
+        this.name = name;
+        this.email = email;
+        this.password = password;
+        this.accountVerified = accountVerified;
+        this.adminPermit = false;
+        this.imageId=-1;
+    }
+    public User(int id, String name, String email, String password,String verificationToken, int accountVerified) {
+        this.id = id;
+        this.name = name;
+        this.email = email;
+        this.password = password;
+        this.verificationToken = verificationToken;
+        this.accountVerified = accountVerified;
+        this.adminPermit = false;
+        this.imageId=-1;
     }
     public User(String name, String email,String password, boolean adminPermit) {
         this.adminPermit = adminPermit;
@@ -65,7 +96,6 @@ public class User implements UserDetails{
         this.name = name;
         this.password = password;
         this.imageId = -1;
-        this.appliedInternships = new ArrayList<>();
     }
 
     @Override
