@@ -20,6 +20,8 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import com.thinkIndia.backend.services.UserService;
+
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
@@ -27,12 +29,14 @@ public class SecurityConfig {
     private OAuthAuthenticationSuccessHandler successHandler;
     private UserDetailsService userDetailsService;
     private JwtUtil jwtUtil;
+    private UserService userService;
 
 
-    public SecurityConfig(OAuthAuthenticationSuccessHandler successHandler, UserDetailsService userDetailsService, JwtUtil jwtUtil){
+    public SecurityConfig(OAuthAuthenticationSuccessHandler successHandler, UserDetailsService userDetailsService, JwtUtil jwtUtil, UserService userService){
         this.successHandler = successHandler;
        this.jwtUtil=jwtUtil;
        this.userDetailsService=userDetailsService;
+       this.userService = userService;
     }
 
     @Bean
@@ -56,7 +60,7 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, AuthenticationManager authenticationManager, JwtUtil jwtUtil) throws Exception{
-        JwtAuthenticationFilter jwtAuthFilter = new JwtAuthenticationFilter(authenticationManager, jwtUtil);
+        JwtAuthenticationFilter jwtAuthFilter = new JwtAuthenticationFilter(authenticationManager, jwtUtil, userService);
         JwtValidationFilter jwtValidationFilter = new JwtValidationFilter(authenticationManager);
         http
             .cors(withDefaults())

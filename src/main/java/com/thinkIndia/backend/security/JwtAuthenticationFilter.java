@@ -1,15 +1,19 @@
 package com.thinkIndia.backend.security;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.Map;
 
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.thinkIndia.backend.entities.User;
+import com.thinkIndia.backend.services.UserService;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -20,10 +24,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter{
 
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
+    private UserService userService;
 
-    public JwtAuthenticationFilter(AuthenticationManager authenticationManager, JwtUtil jwtUtil){
+    public JwtAuthenticationFilter(AuthenticationManager authenticationManager, JwtUtil jwtUtil, UserService userService){
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
+        this.userService = userService;
     }
     @Override
 protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -48,6 +54,10 @@ protected void doFilterInternal(HttpServletRequest request, HttpServletResponse 
         if (authResult.isAuthenticated()) {
             // Generate the JWT, including the user's roles.
             String token = jwtUtil.generateToken(authResult.getName(), authResult.getAuthorities(), 15);
+            User user = (User) userService.loadUserByUsername(email);
+            if(user.getAccountVerified()==0) throw new BadCredentialsException("Account not verified.");
+            user.setLastActive(LocalDateTime.now());
+            userService.saveUser(user);
 
             // Check if the user has the "ROLE_ADMIN" authority.
             boolean isAdmin = authResult.getAuthorities().stream()

@@ -1,5 +1,7 @@
 package com.thinkIndia.backend.controllers;
 
+import java.time.LocalDateTime;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -54,7 +56,7 @@ public class UserAuthController {
                                 "We noticed a login attempt to your Think India SVNIT account.\n" + //
                                 "To keep your account secure, please verify your email by clicking the button below:\n" + //
                                 "\n" + //
-                                "http://localhost:8082/auth/verifyEmail/"+userDto.getEmail()+"/"+verificationToken+"\n" + //verificatoin link
+                                "https://api.thinkindiasvnit.in/auth/verifyEmail/"+userDto.getEmail()+"/"+verificationToken+"\n" + //verificatoin link
                                 "\n" + //
                                 "If you did not attempt to log in, you can safely ignore this email.\n" + //
                                 "\n" + //
@@ -81,7 +83,7 @@ public class UserAuthController {
                                 "We noticed a login attempt to your Think India SVNIT account.\n" + //
                                 "To keep your account secure, please verify your email by clicking the button below:\n" + //
                                 "\n" + //
-                                "http://localhost:8082/auth/verifyEmail/"+userDto.getEmail()+"/"+verificationToken+"\n" + //verificatoin link
+                                "https://api.thinkindiasvnit.in/auth/verifyEmail/"+userDto.getEmail()+"/"+verificationToken+"\n" + //verificatoin link
                                 "\n" + //
                                 "If you did not attempt to log in, you can safely ignore this email.\n" + //
                                 "\n" + //
@@ -100,11 +102,12 @@ public class UserAuthController {
     public ResponseEntity<?> getMethodName(@PathVariable("email") String email, @PathVariable("token") String token) {
         User user = (User)userService.loadUserByUsername(email);
         if( !user.getVerificationToken().equals(token)){
-            return new ResponseEntity<>("Wrong Token.Please try signup again.", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("<h1>Wrong Token.Please try signup again.</h1>", HttpStatus.BAD_REQUEST);
         }
         user.setAccountVerified(1);
+        user.setLastActive(LocalDateTime.now());
         userService.saveUser(user);
-        return new ResponseEntity<>("Account verified successfully.",HttpStatus.OK);
+        return new ResponseEntity<>("<h1>Account verified successfully.</h1>",HttpStatus.OK);
     }
     
 }
