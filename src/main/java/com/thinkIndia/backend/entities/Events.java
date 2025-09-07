@@ -3,10 +3,14 @@ package com.thinkIndia.backend.entities;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Lob;
 import jakarta.persistence.OneToMany;
 import lombok.Getter;
@@ -22,7 +26,11 @@ public class Events {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private String name;
-    private List<Integer> imageIdList;
+
+    @ElementCollection
+    @CollectionTable(name = "event_image_urls", joinColumns = @JoinColumn(name = "event_id"))
+    @Column(name = "image_url", length = 512)
+    private List<String> imageUrlList;
     @Lob
     private String details;
     @Lob
@@ -34,10 +42,10 @@ public class Events {
     @OneToMany(mappedBy="event")
     private List<EventRegistration> registrations;
 
-    public Events(LocalDateTime dateTime, String details, List<Integer> imageIdList, String message, String name, int isActive, int showEvent) {
+    public Events(LocalDateTime dateTime, String details, List<String> imageUrlList, String message, String name, int isActive, int showEvent) {
         this.dateTime = dateTime;
         this.details = details;
-        this.imageIdList = imageIdList;
+        this.imageUrlList = imageUrlList;
         this.message = message;
         this.name = name;
         this.isActive = isActive;

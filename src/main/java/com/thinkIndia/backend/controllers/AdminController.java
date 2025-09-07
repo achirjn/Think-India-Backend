@@ -1,6 +1,8 @@
 package com.thinkIndia.backend.controllers;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -26,7 +28,6 @@ import com.thinkIndia.backend.dto.RecommendationDto;
 import com.thinkIndia.backend.entities.BlogPost;
 import com.thinkIndia.backend.entities.Events;
 import com.thinkIndia.backend.entities.Glimpses;
-import com.thinkIndia.backend.entities.Images;
 import com.thinkIndia.backend.entities.InternPlacements;
 import com.thinkIndia.backend.entities.Internship;
 import com.thinkIndia.backend.entities.Recommendations;
@@ -34,10 +35,10 @@ import com.thinkIndia.backend.entities.TeamMember;
 import com.thinkIndia.backend.services.BlogPostService;
 import com.thinkIndia.backend.services.EventsService;
 import com.thinkIndia.backend.services.GlimpsesService;
-import com.thinkIndia.backend.services.ImageService;
 import com.thinkIndia.backend.services.InternPlacementsService;
 import com.thinkIndia.backend.services.InternshipService;
 import com.thinkIndia.backend.services.RecommendService;
+import com.thinkIndia.backend.services.S3Service;
 import com.thinkIndia.backend.services.TeamMemberService;
 
 
@@ -51,7 +52,7 @@ public class AdminController {
     @Autowired
     private BlogPostService blogService;
     @Autowired
-    private ImageService imageService;
+    private S3Service s3Service;
     @Autowired
     private GlimpsesService glimpsesService;
     @Autowired
@@ -70,9 +71,8 @@ public class AdminController {
         title = title.stripLeading();
         title = title.stripTrailing();
 
-        int savedImageId = uploadImage(imageFile);
-        if(savedImageId==-1) return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        BlogPost blog = new BlogPost(savedImageId, title, excerpt);
+        String imageUrl = s3Service.uploadFile(imageFile);
+        BlogPost blog = new BlogPost(imageUrl, title, excerpt);
         blog = blogService.createBlog(blog);
         if(blog==null) return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         return new ResponseEntity<>(HttpStatus.OK);
@@ -80,7 +80,13 @@ public class AdminController {
     @DeleteMapping("/deleteBlog/{heading}")
     public ResponseEntity<?> deleteBlog(@PathVariable(value="heading") String heading){
         BlogPost blog = blogService.findByHeading(heading);
-        deleteImage(blog.getImageId());
+        try {
+            String imageUrl = blog.getImageUrl();
+            URI uri = new URI(imageUrl);
+            String key = uri.getPath().substring(1);
+            s3Service.deleteFile(key);
+        } catch (URISyntaxException ex) {
+        }
         blogService.deleteByHeading(heading);
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -90,17 +96,32 @@ public class AdminController {
         name = name.stripLeading();
         name = name.stripTrailing();
 
-        int savedImageId = uploadImage(imageFile);
-        if(savedImageId==-1) return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        Glimpses event = new Glimpses(name, savedImageId);
-        event = glimpsesService.createEvent(event);
-        if(event == null) return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        return new ResponseEntity<>(HttpStatus.OK);
+        try{
+            String imageUrl = s3Service.uploadFile(imageFile);
+            Glimpses event = new Glimpses(name, imageUrl);
+            event = glimpsesService.createEvent(event);
+            if(event == null) return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(HttpStatus.OK);
+        }catch (IOException e) {
+            System.err.println("An IOException occurred during file upload: " + e.getMessage());
+            e.printStackTrace();
+            return new ResponseEntity<>("File upload to S3 failed.", HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (Exception e) {
+            System.err.println("An unexpected error occurred: " + e.getMessage());
+            e.printStackTrace();
+            return new ResponseEntity<>("An internal server error occurred.", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
     @DeleteMapping("/deleteGlimpse/{name}")
     public ResponseEntity<?> deleteGlimpse(@PathVariable(value="name") String name){
         Glimpses glimpse = glimpsesService.findByName(name);
-        deleteImage(glimpse.getImageId());
+        try {
+            String imageUrl = glimpse.getImageUrl();
+            URI uri = new URI(imageUrl);
+            String key = uri.getPath().substring(1);
+            s3Service.deleteFile(key);
+        } catch (URISyntaxException ex) {
+        }
         glimpsesService.deleteByName(name);
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -148,9 +169,8 @@ public class AdminController {
         position = position.stripLeading();
         position = position.stripTrailing();
 
-        int savedImageId = uploadImage(imageFile);
-        if(savedImageId==-1) return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        TeamMember member = new TeamMember(name, savedImageId, committee, position);
+        String imageUrl = s3Service.uploadFile(imageFile);
+        TeamMember member = new TeamMember(name, imageUrl, committee, position);
         member = teamMemberService.saveMember(member);
         if(member == null) return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         return new ResponseEntity<>(member, HttpStatus.OK);
@@ -160,8 +180,13 @@ public class AdminController {
         Optional<TeamMember> memberOptional = teamMemberService.getById(id);
         if(memberOptional.isEmpty()) return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         TeamMember member = memberOptional.get();
-        int imageId = member.getImageId();
-        deleteImage(imageId);
+        try {
+            String imageUrl = member.getImageUrl();
+            URI uri = new URI(imageUrl);
+            String key = uri.getPath().substring(1);
+            s3Service.deleteFile(key);
+        } catch (URISyntaxException ex) {
+        }
         teamMemberService.deleteMember(id);
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -169,19 +194,18 @@ public class AdminController {
     public ResponseEntity<?> addevents(@RequestParam("Name") String name,@RequestParam(value="Images", required=false) List<MultipartFile> imageList, @RequestParam(value="Details") String details, @RequestParam(value="Message",required=false) String message, @RequestParam(value="DateTime") @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime dateTime, @RequestParam(value="IsActive") int isActive, @RequestParam(value="ShowEvent") int showEvent) {
         Events events;
         if(imageList != null && !imageList.isEmpty()){
-            List<Integer> imageIdList = new ArrayList<>();
+            List<String> imageUrlList = new ArrayList<>();
             for(MultipartFile image: imageList){
                 try {
-                    int savedImageId = uploadImage(image);
-                    if(savedImageId==-1) return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-                    imageIdList.add(savedImageId);
+                    String imageUrl = s3Service.uploadFile(image);
+                    imageUrlList.add(imageUrl);
                 } catch (IOException e) {
                     System.err.println("Error creating event: " + e.getMessage());
                     e.printStackTrace();
                     return ResponseEntity.badRequest().body("Error: " + e.getMessage());
                 }
             }
-            events = new Events(dateTime, details, imageIdList,message, name, isActive, showEvent);
+            events = new Events(dateTime, details, imageUrlList,message, name, isActive, showEvent);
         }
         else{
             events = new Events(name, details, message, dateTime, isActive, showEvent);
@@ -244,17 +268,22 @@ public class AdminController {
     public void deleteEvent(@PathVariable("id") int id){
         Optional<Events> eventOptional = eventsService.findById(id);
         if(eventOptional.isEmpty()) return;
-        List<Integer> imageIdList = eventOptional.get().getImageIdList();
-        for(int imageId : imageIdList){
-            deleteImage(imageId);
+        List<String> imageUrlList = eventOptional.get().getImageUrlList();
+        for(String imageUrl : imageUrlList){
+            try {
+                URI uri = new URI(imageUrl);
+                String key = uri.getPath().substring(1);
+                s3Service.deleteFile(key);
+            } catch (URISyntaxException ex) {
+            }
         }
         eventsService.deleteById(id);
     }
 
     @PostMapping("/addUpcommingInternship")
-    public ResponseEntity<?> addUpcommingInternship(@RequestParam("Role") String role, @RequestParam(value="Desciption") String discription, @RequestParam(value="Institute") String institute, @RequestParam(value="eligiblity") String eligiblity, @RequestParam(value="Start Date") LocalDate starDate,@RequestParam(value="duration") int duration, @RequestParam(value="IsActive") int isActive) {
-        Internship internship = new Internship(role, discription, institute, starDate, duration, eligiblity, isActive);
-        internshipService.savInternship(internship);
+    public ResponseEntity<?> addUpcommingInternship(@RequestParam("Role") String role, @RequestParam(value="Description") String discription, @RequestParam(value="Institute") String institute, @RequestParam(value="eligibility") String eligibility, @RequestParam(value="Start Date") @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate startDate,@RequestParam(value="duration") int duration, @RequestParam(value="IsActive") int isActive) {
+        Internship internship = new Internship(role, discription, institute, startDate, duration, eligibility, isActive);
+        internshipService.saveInternship(internship);
         return new ResponseEntity<>(HttpStatus.OK);
     }
     @DeleteMapping("/removeInternship/{id}")
@@ -267,8 +296,8 @@ public class AdminController {
     @PostMapping("/addInternPlacements")
     public ResponseEntity<?> addInternPlacements(@RequestParam(value="Name") String studentName,@RequestParam(value="Designation") String designation,@RequestParam(value="Role") String role, @RequestParam(value="Institute") String instituteName, @RequestParam(value="Image") MultipartFile imageFile, @RequestParam(value="Message") String message) {
         try {
-            int savedImageId = uploadImage(imageFile);
-            InternPlacements internPlacement = new InternPlacements(designation, savedImageId, instituteName, message, role, studentName);
+            String imageUrl = s3Service.uploadFile(imageFile);
+            InternPlacements internPlacement = new InternPlacements(designation, imageUrl, instituteName, message, role, studentName);
             internPlacementsService.saveInternPlacedData(internPlacement);
         } catch (IOException ex) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -278,21 +307,17 @@ public class AdminController {
     @DeleteMapping("/removeInternPlacedData/{id}")
     public ResponseEntity<?> deleteInternPlacements(@PathVariable("id") int id){
         Optional<InternPlacements> internPlacedOptional = internPlacementsService.findById(id);
-        deleteImage(internPlacedOptional.get().getImageId());
+        if(internPlacedOptional.isEmpty()) return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        try {
+            String imageUrl = internPlacedOptional.get().getImageUrl();
+            URI uri = new URI(imageUrl);
+            String key = uri.getPath().substring(1);
+            s3Service.deleteFile(key);
+        } catch (URISyntaxException ex) {
+        }
         internPlacementsService.deleteById(id);
         return new ResponseEntity<>(HttpStatus.OK);
     }
     
-    
-    public int uploadImage(MultipartFile imageFile) throws IOException{
-        String imageName = StringUtils.cleanPath(imageFile.getOriginalFilename());
-        Images image = new Images(imageName, imageFile.getBytes());
-        Images savedImage = imageService.saveImage(image);
-        if(savedImage==null) return -1;
-        return savedImage.getId();
-    }
-    public void deleteImage(int id){
-        imageService.deleteById(id);
-    }
 
 }

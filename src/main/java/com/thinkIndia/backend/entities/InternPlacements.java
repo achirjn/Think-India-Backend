@@ -22,22 +22,22 @@ public class InternPlacements {
     private String designation;
     private String role;
     private String instituteName;
-    private int imageId;
+    private String imageUrl;
     @Lob
     private String message;
 
-    public InternPlacements(String designation, int imageId, String instituteName, String message, String role, String studentName) {
+    public InternPlacements(String designation, String imageUrl, String instituteName, String message, String role, String studentName) {
         this.designation = designation;
-        this.imageId = imageId;
+        this.imageUrl = imageUrl;
         this.instituteName = instituteName;
         this.message = message;
         this.role = role;
         this.studentName = studentName;
     }
 
-    public InternPlacements(String designation, int imageId, String message, String studentName) {
+    public InternPlacements(String designation, String imageUrl, String message, String studentName) {
         this.designation = designation;
-        this.imageId = imageId;
+        this.imageUrl = imageUrl;
         this.message = message;
         this.studentName = studentName;
     }

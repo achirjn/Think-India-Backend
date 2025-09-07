@@ -13,18 +13,15 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.thinkIndia.backend.dto.ImageDto;
 import com.thinkIndia.backend.entities.BlogPost;
 import com.thinkIndia.backend.entities.Events;
 import com.thinkIndia.backend.entities.Glimpses;
-import com.thinkIndia.backend.entities.Images;
 import com.thinkIndia.backend.entities.InternPlacements;
 import com.thinkIndia.backend.entities.Recommendations;
 import com.thinkIndia.backend.entities.TeamMember;
 import com.thinkIndia.backend.services.BlogPostService;
 import com.thinkIndia.backend.services.EventsService;
 import com.thinkIndia.backend.services.GlimpsesService;
-import com.thinkIndia.backend.services.ImageService;
 import com.thinkIndia.backend.services.InternPlacementsService;
 import com.thinkIndia.backend.services.RecommendService;
 import com.thinkIndia.backend.services.TeamMemberService;
@@ -39,8 +36,6 @@ public class HomeController {
     private RecommendService recommendService;
     @Autowired
     private BlogPostService blogPostService;
-    @Autowired
-    private ImageService imageService;
     @Autowired
     private GlimpsesService glimpsesService;
     @Autowired
@@ -83,16 +78,6 @@ public class HomeController {
         // BlogDto blogDto = new BlogDto(blog.getImageId(), blog.getHeading(), blog.getContent(),blog.getPostTime());
         // return new ResponseEntity<>(blogDto, HttpStatus.OK);
         return new ResponseEntity<>(blog, HttpStatus.OK);
-    }
-    
-    @GetMapping("/image/{id}")
-    public ResponseEntity<?> getImage(@PathVariable(value="id") int imageId) {
-        Optional<Images> imageOptional = imageService.getImageById(imageId);
-        if(imageOptional.isEmpty()) return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        byte[] imageByteArray = imageOptional.get().getData();
-        String base64Image = Base64.getEncoder().encodeToString(imageByteArray);
-        ImageDto imageDto = new ImageDto(base64Image);
-        return new ResponseEntity<>(imageDto, HttpStatus.OK);
     }
     
     @GetMapping("/glimpses")

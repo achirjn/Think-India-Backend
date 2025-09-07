@@ -19,12 +19,12 @@ public class Glimpses {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private String name;
-    private int imageId;
+    private String imageUrl;
     private LocalDate date;
     
-    public Glimpses(String name, int imageId) {
+    public Glimpses(String name, String imageUrl) {
         this.name = name;
-        this.imageId = imageId;
+        this.imageUrl = imageUrl;
         this.date = LocalDate.now();
     }
 }

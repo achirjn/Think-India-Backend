@@ -24,7 +24,7 @@ public class InternshipServiceImpl implements InternshipService{
         return internshipRepository.findUpcommingInternships();
     }
     @Override
-    public Internship savInternship(Internship internship) {
+    public Internship saveInternship(Internship internship) {
         return internshipRepository.save(internship);
     }
     @Override

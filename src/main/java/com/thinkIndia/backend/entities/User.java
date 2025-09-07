@@ -41,7 +41,8 @@ public class User implements UserDetails{
     private boolean adminPermit;
 
     private LocalDateTime lastActive;
-    private int imageId=-1;
+    @Column(nullable=true)
+    private String imageUrl;
     
     @OneToOne(cascade=CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name="resume_id",referencedColumnName="id")
@@ -59,7 +60,6 @@ public class User implements UserDetails{
         this.email = email;
         this.password = password;
         this.adminPermit = false;
-        this.imageId = -1;
         this.accountVerified = accountVerified;
     }
     public User(String name, String email, String password,String verificationToken, int accountVerified){
@@ -68,7 +68,6 @@ public class User implements UserDetails{
         this.password = password;
         this.verificationToken = verificationToken;
         this.adminPermit = false;
-        this.imageId = -1;
         this.accountVerified = accountVerified;
     }
     public User(int id, String name, String email, String password, int accountVerified) {
@@ -78,7 +77,6 @@ public class User implements UserDetails{
         this.password = password;
         this.accountVerified = accountVerified;
         this.adminPermit = false;
-        this.imageId=-1;
     }
     public User(int id, String name, String email, String password,String verificationToken, int accountVerified) {
         this.id = id;
@@ -88,14 +86,12 @@ public class User implements UserDetails{
         this.verificationToken = verificationToken;
         this.accountVerified = accountVerified;
         this.adminPermit = false;
-        this.imageId=-1;
     }
     public User(String name, String email,String password, boolean adminPermit) {
         this.adminPermit = adminPermit;
         this.email = email;
         this.name = name;
         this.password = password;
-        this.imageId = -1;
     }
 
     @Override

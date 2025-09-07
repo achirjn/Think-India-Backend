@@ -17,12 +17,12 @@ public class TeamMember {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private String name;
-    private int imageId;
+    private String imageUrl;
     private String committee;
     private String position;
-    public TeamMember(String name,int imageId, String committee,String position) {
+    public TeamMember(String name,String imageUrl, String committee,String position) {
         this.name = name;
-        this.imageId = imageId;
+        this.imageUrl = imageUrl;
         this.committee = committee;
         this.position = position;
     }

@@ -19,14 +19,14 @@ public class BlogPost {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    private int imageId;
+    private String imageUrl;
     private String heading;
     @Lob
     private String content;
     private LocalDateTime postTime;
 
-    public BlogPost(int imageId, String heading, String content){
-        this.imageId = imageId;
+    public BlogPost(String imageUrl, String heading, String content){
+        this.imageUrl = imageUrl;
         this.heading = heading;
         this.content = content;
         this.postTime = LocalDateTime.now();

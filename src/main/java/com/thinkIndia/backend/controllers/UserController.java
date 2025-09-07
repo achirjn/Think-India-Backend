@@ -1,6 +1,8 @@
 package com.thinkIndia.backend.controllers;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -13,7 +15,6 @@ import static org.springframework.http.HttpStatus.OK;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -25,17 +26,16 @@ import com.thinkIndia.backend.dto.UserEventDto;
 import com.thinkIndia.backend.dto.UserInternshipsDto;
 import com.thinkIndia.backend.entities.EventRegistration;
 import com.thinkIndia.backend.entities.Events;
-import com.thinkIndia.backend.entities.Images;
 import com.thinkIndia.backend.entities.InternApplication;
 import com.thinkIndia.backend.entities.Internship;
 import com.thinkIndia.backend.entities.ResumeCV;
 import com.thinkIndia.backend.entities.User;
 import com.thinkIndia.backend.services.EventRegistrationService;
 import com.thinkIndia.backend.services.EventsService;
-import com.thinkIndia.backend.services.ImageService;
 import com.thinkIndia.backend.services.InternApplicationService;
 import com.thinkIndia.backend.services.InternshipService;
 import com.thinkIndia.backend.services.ResumeCVService;
+import com.thinkIndia.backend.services.S3Service;
 import com.thinkIndia.backend.services.UserService;
 
 
@@ -44,7 +44,7 @@ import com.thinkIndia.backend.services.UserService;
 @RequestMapping("/user")
 public class UserController {
     @Autowired
-    private ImageService imageService;
+    private S3Service s3Service;
     @Autowired
     private UserService userService;
     @Autowired
@@ -73,11 +73,18 @@ public class UserController {
     @RequestParam(value="UserName") String name, @PathVariable("email") String email) throws IOException {
         
         User user = (User) userService.loadUserByUsername(email);
-        int savedImageId;
         if(imageFile!=null){
-            if(user.getImageId()!=-1) deleteImage(user.getImageId());
-            savedImageId = uploadImage(imageFile);
-            user.setImageId(savedImageId);
+            if(user.getImageUrl()!=null){
+                try {
+                    String imageUrl = user.getImageUrl();
+                    URI uri = new URI(imageUrl);
+                    String key = uri.getPath().substring(1);
+                    s3Service.deleteFile(key);
+                } catch (URISyntaxException ex) {
+                }
+            }
+            String imageUrl = s3Service.uploadFile(imageFile);
+            user.setImageUrl(imageUrl);
         }
         user.setName(name);
         userService.saveUser(user);
@@ -215,15 +222,4 @@ public class UserController {
         return new ResponseEntity<>(userEventDtoList, HttpStatus.OK);
     }
     
-    
-    public int uploadImage(MultipartFile imageFile) throws IOException{
-        String imageName = StringUtils.cleanPath(imageFile.getOriginalFilename());
-        Images image = new Images(imageName, imageFile.getBytes());
-        Images savedImage = imageService.saveImage(image);
-        if(savedImage==null) return -1;
-        return savedImage.getId();
-    }
-    public void deleteImage(int id){
-        imageService.deleteById(id);
-    }
 }
