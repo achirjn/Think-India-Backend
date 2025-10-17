@@ -53,7 +53,7 @@ protected void doFilterInternal(HttpServletRequest request, HttpServletResponse 
         // 4. If authentication is successful, build and send the JSON response.
         if (authResult.isAuthenticated()) {
             // Generate the JWT, including the user's roles.
-            String token = jwtUtil.generateToken(authResult.getName(), authResult.getAuthorities(), 15);
+            String token = jwtUtil.generateToken(authResult.getName(), authResult.getAuthorities(), 30);
             User user = (User) userService.loadUserByUsername(email);
             if(user.getAccountVerified()==0) throw new BadCredentialsException("Account not verified.");
             user.setLastActive(LocalDateTime.now());

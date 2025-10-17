@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -186,6 +185,7 @@ public class AdminController {
             String key = uri.getPath().substring(1);
             s3Service.deleteFile(key);
         } catch (URISyntaxException ex) {
+            ex.printStackTrace();
         }
         teamMemberService.deleteMember(id);
         return new ResponseEntity<>(HttpStatus.OK);
@@ -281,8 +281,18 @@ public class AdminController {
     }
 
     @PostMapping("/addUpcommingInternship")
-    public ResponseEntity<?> addUpcommingInternship(@RequestParam("Role") String role, @RequestParam(value="Description") String discription, @RequestParam(value="Institute") String institute, @RequestParam(value="eligibility") String eligibility, @RequestParam(value="Start Date") @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate startDate,@RequestParam(value="duration") int duration, @RequestParam(value="IsActive") int isActive) {
-        Internship internship = new Internship(role, discription, institute, startDate, duration, eligibility, isActive);
+    public ResponseEntity<?> addUpcommingInternship(@RequestParam(value="Role", required=false) String role, @RequestParam(value="Description") String discription, @RequestParam(value="Institute", required=false) String institute, @RequestParam(value="eligibility") String eligibility, @RequestParam(value="Start Date", required=false) @DateTimeFormat(pattern = "dd-MM-yyyy") LocalDate startDate,@RequestParam(value="duration", required=false) Integer duration,@RequestParam(value="Internship_image", required=false) MultipartFile image, @RequestParam(value="IsActive", defaultValue = "0") int isActive) {
+        String imageUrl = null;
+        if(image != null && !image.isEmpty()){
+            try {
+                imageUrl = s3Service.uploadFile(image);
+            } catch (IOException e) {
+                System.err.println("Error creating event: " + e.getMessage());
+                e.printStackTrace();
+                return ResponseEntity.badRequest().body("Error: " + e.getMessage());
+            }
+        }
+        Internship internship = new Internship(role, discription, institute, startDate, duration, eligibility,imageUrl, isActive);
         internshipService.saveInternship(internship);
         return new ResponseEntity<>(HttpStatus.OK);
     }

@@ -3,6 +3,7 @@ package com.thinkIndia.backend.entities;
 import java.time.LocalDate;
 import java.util.List;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -22,25 +23,32 @@ public class Internship {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private String role;
+    @Column(nullable = false, columnDefinition="TEXT")
     @Lob
     private String description;
     private String institute;
     private LocalDate startDate;
-    private int duration;//in days
+    @Column(nullable = true)
+    private Integer duration;//in days
+    @Lob
+    @Column(columnDefinition="LONGTEXT")
     private String eligiblity;
+    private String imageUrl;
+    @Column(nullable = false)
     private int isActive;
 
     @OneToMany(mappedBy="internship")
     private List<InternApplication> applications;
 
-    public Internship(String role, String description, String institute, LocalDate startDate, int duration,
-            String eligiblity, int isActive) {
+    public Internship(String role, String description, String institute, LocalDate startDate, Integer duration,
+            String eligiblity,String imageUrl, int isActive) {
         this.role = role;
         this.description = description;
         this.institute = institute;
         this.startDate = startDate;
         this.duration = duration;
         this.eligiblity = eligiblity;
+        this.imageUrl = imageUrl;
         this.isActive = isActive;
     }
 }
