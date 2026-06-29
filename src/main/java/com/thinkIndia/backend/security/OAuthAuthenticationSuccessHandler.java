@@ -6,7 +6,6 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.web.DefaultRedirectStrategy;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
@@ -36,10 +35,15 @@ public class OAuthAuthenticationSuccessHandler implements AuthenticationSuccessH
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,Authentication authentication) throws IOException, ServletException {
         try{
-                DefaultOAuth2User oAuthUser = (DefaultOAuth2User) authentication.getPrincipal();
-                String name = oAuthUser.getName();
-                String email = oAuthUser.getAttribute("email").toString();
-                System.out.println(name+"  "+email);
+                org.springframework.security.oauth2.core.user.OAuth2User oAuthUser =
+                    (org.springframework.security.oauth2.core.user.OAuth2User) authentication.getPrincipal();
+                System.out.println("OAuth2 principal class: " + oAuthUser.getClass().getName());
+                System.out.println("OAuth2 attributes: " + oAuthUser.getAttributes());
+                String email = (String) oAuthUser.getAttribute("email");
+                String name = oAuthUser.getAttribute("name") != null
+                    ? (String) oAuthUser.getAttribute("name")
+                    : email;
+                System.out.println("OAuth login - name: " + name + "  email: " + email);
                 
                 User user;
                 try {
