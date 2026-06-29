@@ -37,7 +37,7 @@ import com.thinkIndia.backend.services.GlimpsesService;
 import com.thinkIndia.backend.services.InternPlacementsService;
 import com.thinkIndia.backend.services.InternshipService;
 import com.thinkIndia.backend.services.RecommendService;
-import com.thinkIndia.backend.services.S3Service;
+import com.thinkIndia.backend.services.CloudinaryService;
 import com.thinkIndia.backend.services.TeamMemberService;
 
 
@@ -51,7 +51,7 @@ public class AdminController {
     @Autowired
     private BlogPostService blogService;
     @Autowired
-    private S3Service s3Service;
+    private CloudinaryService s3Service;
     @Autowired
     private GlimpsesService glimpsesService;
     @Autowired

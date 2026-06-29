@@ -35,7 +35,7 @@ import com.thinkIndia.backend.services.EventsService;
 import com.thinkIndia.backend.services.InternApplicationService;
 import com.thinkIndia.backend.services.InternshipService;
 import com.thinkIndia.backend.services.ResumeCVService;
-import com.thinkIndia.backend.services.S3Service;
+import com.thinkIndia.backend.services.CloudinaryService;
 import com.thinkIndia.backend.services.UserService;
 
 
@@ -44,7 +44,7 @@ import com.thinkIndia.backend.services.UserService;
 @RequestMapping("/user")
 public class UserController {
     @Autowired
-    private S3Service s3Service;
+    private CloudinaryService s3Service;
     @Autowired
     private UserService userService;
     @Autowired

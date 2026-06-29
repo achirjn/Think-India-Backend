@@ -37,7 +37,6 @@ public class User implements UserDetails{
     private String verificationToken;
     private int accountVerified;
     
-    @Column(columnDefinition = "TINYINT(1)")
     private boolean adminPermit;
 
     private LocalDateTime lastActive;

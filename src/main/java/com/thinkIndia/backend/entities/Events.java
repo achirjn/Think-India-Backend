@@ -11,7 +11,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.Lob;
 import jakarta.persistence.OneToMany;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -31,9 +30,9 @@ public class Events {
     @CollectionTable(name = "event_image_urls", joinColumns = @JoinColumn(name = "event_id"))
     @Column(name = "image_url", length = 512)
     private List<String> imageUrlList;
-    @Lob
+    @Column(columnDefinition = "TEXT")
     private String details;
-    @Lob
+    @Column(columnDefinition = "TEXT")
     private String message;
     private LocalDateTime dateTime;
     private int isActive;

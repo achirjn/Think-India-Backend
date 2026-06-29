@@ -8,7 +8,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Lob;
 import jakarta.persistence.OneToMany;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -24,14 +23,12 @@ public class Internship {
     private int id;
     private String role;
     @Column(nullable = false, columnDefinition="TEXT")
-    @Lob
     private String description;
     private String institute;
     private LocalDate startDate;
     @Column(nullable = true)
     private Integer duration;//in days
-    @Lob
-    @Column(columnDefinition="LONGTEXT")
+    @Column(columnDefinition="TEXT")
     private String eligiblity;
     private String imageUrl;
     @Column(nullable = false)

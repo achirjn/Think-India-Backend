@@ -18,8 +18,7 @@ public class ResumeCV {
     
     private String name;
 
-    @Lob
-    @Column(columnDefinition="MEDIUMBLOB")
+    @Column(columnDefinition="BYTEA")
     private byte[] data;
 
     public ResumeCV(String name, byte[] data) {

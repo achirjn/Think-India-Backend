@@ -1,10 +1,10 @@
 package com.thinkIndia.backend.entities;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Lob;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -23,7 +23,7 @@ public class InternPlacements {
     private String role;
     private String instituteName;
     private String imageUrl;
-    @Lob
+    @Column(columnDefinition = "TEXT")
     private String message;
 
     public InternPlacements(String designation, String imageUrl, String instituteName, String message, String role, String studentName) {

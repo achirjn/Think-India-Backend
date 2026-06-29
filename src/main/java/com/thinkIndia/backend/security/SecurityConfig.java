@@ -69,9 +69,9 @@ public class SecurityConfig {
                 .requestMatchers("/login/oauth2/**").permitAll()
                 .anyRequest().permitAll()
                 )
-                .csrf(csrf -> csrf.disable())
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
-                .addFilterAfter(jwtValidationFilter, JwtAuthenticationFilter.class);
+            .csrf(csrf -> csrf.disable())
+            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+            .addFilterAfter(jwtValidationFilter, JwtAuthenticationFilter.class);
         http.oauth2Login(oauth -> {
             oauth.loginPage("https://www.thinkindiasvnit.in/login");
             oauth.successHandler(successHandler);
