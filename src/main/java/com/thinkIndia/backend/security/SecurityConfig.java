@@ -75,6 +75,15 @@ public class SecurityConfig {
         http.oauth2Login(oauth -> {
             oauth.loginPage("https://www.thinkindiasvnit.in/login");
             oauth.successHandler(successHandler);
+            oauth.failureHandler((request, response, exception) -> {
+                System.err.println("!!!!!!!!!! OAUTH FAILURE EXCEPTION !!!!!!!!!!");
+                exception.printStackTrace();
+                String errorMessage = exception.getMessage();
+                if (errorMessage == null) {
+                    errorMessage = exception.getClass().getSimpleName();
+                }
+                response.sendRedirect("https://www.thinkindiasvnit.in/login?error=" + java.net.URLEncoder.encode(errorMessage, "UTF-8"));
+            });
         });
         return http.build();
     }
