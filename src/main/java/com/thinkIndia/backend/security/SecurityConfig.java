@@ -67,6 +67,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .requestMatchers("/login/oauth2/**").permitAll()
+                .requestMatchers("/oauth2/**").permitAll()
                 .anyRequest().permitAll()
                 )
             .csrf(csrf -> csrf.disable())
@@ -75,6 +76,12 @@ public class SecurityConfig {
         http.oauth2Login(oauth -> {
             oauth.loginPage("https://www.thinkindiasvnit.in/login");
             oauth.successHandler(successHandler);
+            // Store OAuth2 authorization request in a cookie instead of server-side session.
+            // This avoids authorization_request_not_found when session is lost between redirects
+            // on stateless platforms like Render.
+            oauth.authorizationEndpoint(authz ->
+                authz.authorizationRequestRepository(new CookieOAuth2AuthorizationRequestRepository())
+            );
             oauth.failureHandler((request, response, exception) -> {
                 System.err.println("!!!!!!!!!! OAUTH FAILURE EXCEPTION !!!!!!!!!!");
                 exception.printStackTrace();
